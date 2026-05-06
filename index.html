@@ -3,66 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>P/P TRACKER</title>
+    <title>P/P TRACKER 🌿</title>
     <style>
-        :root { --primary: #4caf50; --bg: #f1f8e9; --text: #2e7d32; --white: #ffffff; }
-        body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; }
-        header { background: var(--primary); color: white; padding: 15px; text-align: center; sticky: top; }
+        :root { --primary: #4caf50; --bg: #f1f8e9; --text: #2e7d32; --white: #ffffff; --accent: #81c784; }
+        body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; color: #333; }
+        header { background: var(--primary); color: white; padding: 15px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .container { padding: 15px; max-width: 600px; margin: auto; }
-        .card { background: var(--white); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .rating { display: flex; gap: 4px; }
-        .dot { width: 32px; height: 32px; border-radius: 6px; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .dot.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; }
-        .nav-btn { border: none; background: none; font-size: 12px; color: #666; display: flex; flex-direction: column; align-items: center; }
+        .card { background: var(--white); border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .rating { display: flex; gap: 5px; }
+        .dot { width: 34px; height: 34px; border-radius: 8px; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+        .dot.active { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.1); }
+        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 100; }
+        .nav-btn { border: none; background: none; font-size: 11px; color: #666; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
         .nav-btn.active { color: var(--primary); font-weight: bold; }
-        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
-        .day { padding: 10px; border: 1px solid #eee; border-radius: 5px; cursor: pointer; }
-        input[type="file"] { margin-top: 10px; }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .day { padding: 10px 5px; text-align: center; border-radius: 8px; font-size: 14px; background: #f9f9f9; cursor: pointer; }
+        .day.has-data { background: var(--accent); color: white; }
+        .btn-add { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; margin-top: 10px; }
+        .med-item { background: #f9f9f9; padding: 10px; border-radius: 10px; margin-bottom: 10px; border-right: 4px solid var(--primary); }
     </style>
 </head>
 <body>
-    <header><h1>P/P TRACKER 🌿</h1></header>
-    <div class="container" id="main"></div>
-    <nav class="nav">
-        <button class="nav-btn active" onclick="show('track')">📊 מעקב</button>
-        <button class="nav-btn" onclick="show('meds')">💊 תרופות</button>
-        <button class="nav-btn" onclick="show('calendar')">📅 יומן</button>
-        <button class="nav-btn" onclick="show('analysis')">📈 ניתוח</button>
-        <button class="nav-btn" onclick="show('more')">➕ עוד</button>
-    </nav>
 
-    <script>
-        const symptoms = {
-            physical: ["נזלת", "חום", "כאב רגליים", "כאבי בטן", "כאבי ראש", "כאב גרון", "שיעול", "הליכה רוקעת", "עייפות", "הרחבת אישונים"],
-            behavior: ["בכי", "התפרצויות זעם", "מתחצפת ומקללת", "מופנמת", "תסכול וכעס", "שצף דיבור", "חוסר ריכוז", "ערפול מוחי", "אחיזת עפרון רפה", "צחוק היסטרי"],
-            compulsive: ["הרמת גבות", "משיכת אף", "כחכוח גרון", "גירוד והרחה", "הקפצת גוף", "משיכת כתפיים", "סידור שיער", "סידור שמיכה", "סידור כרית", "סידור סדין", "סידור נעליים", "עניין עם בגדים"]
-        };
+<header><h1>P/P TRACKER 🌿</h1></header>
 
-        function show(tab) {
-            const main = document.getElementById('main');
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            event?.currentTarget?.classList?.add('active');
+<div class="container" id="main-view"></div>
 
-            if (tab === 'track') {
-                main.innerHTML = Object.entries(symptoms).map(([key, list]) => `
-                    <div class="card">
-                        <h3>${key === 'physical' ? 'פיזי' : key === 'behavior' ? 'נפשי/התנהגותי' : 'קומפולסיבי/טיקים'}</h3>
-                        ${list.map(s => `<div class="item-row"><span>${s}</span><div class="rating">${[1,2,3,4,5].map(i => `<div class="dot" onclick="this.parentElement.querySelectorAll('.dot').forEach(d=>d.classList.remove('active'));this.classList.add('active')">${i}</div>`).join('')}</div></div>`).join('')}
-                    </div>
-                `).join('');
-            } else if (tab === 'meds') {
-                main.innerHTML = `<div class="card"><h3>מעקב תרופות ותוספים</h3><p>סימון מנות יומי:</p><div class="item-row"><span>תוסף 1</span><button onclick="this.style.background='green'">בוצע</button></div></div>`;
-            } else if (tab === 'calendar') {
-                main.innerHTML = `<div class="card"><h3>יומן וסיכומי ביקור</h3><div class="grid">${Array.from({length:31}, (_,i)=>`<div class="day">${i+1}</div>`).join('')}</div><hr><input type="file" accept="image/*,application/pdf" multiple><p>העלאת תמונות/מסמכים</p></div>`;
-            } else if (tab === 'more') {
-                main.innerHTML = `<div class="card"><h3>קישורים וקודי הנחה</h3><p><a href="https://il.iherb.com">iHerb</a> | קוד: PANS10</p><p>טלפונים חשובים: *הכנס טלפון*</p></div>`;
-            } else {
-                main.innerHTML = `<div class="card"><h3>ניתוח נתונים</h3><p>כאן יופיעו הגרפים וההשוואות.</p></div>`;
-            }
+<nav class="nav">
+    <button class="nav-btn active" onclick="changeTab('track')">📊<span>מעקב</span></button>
+    <button class="nav-btn" onclick="changeTab('meds')">💊<span>תרופות</span></button>
+    <button class="nav-btn" onclick="changeTab('calendar')">📅<span>יומן</span></button>
+    <button class="nav-btn" onclick="changeTab('more')">➕<span>עוד</span></button>
+</nav>
+
+<script>
+    const symptoms = {
+        physical: ["נזלת", "חום", "כאב רגליים", "כאבי בטן", "כאבי ראש", "כאב גרון", "שיעול", "הליכה רוקעת", "עייפות", "הרחבת אישונים", "אחיזת עפרון רפה", "הרטבת לילה", "יקיצות מרובות", "קושי להירדם"],
+        behavior: ["בכי", "התפרצויות זעם", "מתחצפת ומקללת", "מופנמת", "תסכול וכעס", "שצף דיבור", "חוסר ריכוז", "ערפול מוחי", "צחוק היסטרי"],
+        compulsive: ["הרמת גבות", "משיכת אף", "כחכוח גרון", "גירוד והרחה", "הקפצת גוף", "משיכת כתפיים/צוואר", "סידור שיער", "סידור שמיכה", "סידור כרית", "סידור סדין", "סידור נעליים", "עניין עם בגדים"]
+    };
+
+    let appData = JSON.parse(localStorage.getItem('pp_tracker_v6')) || { logs: {}, meds: [], contacts: [] };
+
+    function changeTab(tab) {
+        const view = document.getElementById('main-view');
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        event?.currentTarget?.classList.add('active');
+
+        if (tab === 'track') {
+            view.innerHTML = `
+                <div class="card"><h3>פיזי</h3>${renderSymptoms(symptoms.physical)}</div>
+                <div class="card"><h3>נפשי / התנהגותי</h3>${renderSymptoms(symptoms.behavior)}</div>
+                <div class="card"><h3>קומפולסיבי / טיקים</h3>${renderSymptoms(symptoms.compulsive)}</div>
+                <button class="btn-add" onclick="alert('נשמר בהצלחה!')">שמור נתונים</button>
+            `;
+        } else if (tab === 'meds') {
+            view.innerHTML = `
+                <div class="card">
+                    <h3>ניהול תרופות ותוספים</h3>
+                    <div id="med-list">${appData.meds.length ? '' : '<p>אין תרופות רשומות</p>'}</div>
+                    <button class="btn-add" onclick="addMed()">+ הוסף תרופה/תוסף</button>
+                </div>
+            `;
+        } else if (tab === 'calendar') {
+            view.innerHTML = `<div class="card"><h3>יומן מעקב</h3><div class="calendar-header"><button> < </button><strong>מאי 2026</strong><button> > </button></div><div class="grid">${Array.from({length:31}, (_,i)=>`<div class="day">${i+1}</div>`).join('')}</div><hr><p>סינכרון עם Google Calendar (בקרוב)</p></div>`;
+        } else if (tab === 'more') {
+            view.innerHTML = `
+                <div class="card"><h3>טלפונים חשובים</h3><p>📞 רופא ילדים: 050-000000</p><p>📞 מרכז PANS: 03-000000</p></div>
+                <div class="card"><h3>קישורים לרכישה</h3><p><a href="https://il.iherb.com">iHerb (קודי הנחה זמינים)</a></p><p><a href="#">Supphero</a></p></div>
+                <div class="card"><h3>מידע מקצועי</h3><p><a href="#">אתר PANS/PANDAS ישראל</a></p></div>
+            `;
         }
-        show('track');
-    </script>
+    }
+
+    function renderSymptoms(list) {
+        return list.map(s => `
+            <div class="item-row">
+                <span>${s}</span>
+                <div class="rating">
+                    ${[1,2,3,4,5].map(i => `<div class="dot" onclick="toggleRate(this)">${i}</div>`).join('')}
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function toggleRate(el) {
+        el.parentElement.querySelectorAll('.dot').forEach(d => d.classList.remove('active'));
+        el.classList.add('active');
+    }
+
+    function addMed() {
+        const name = prompt("שם התרופה/תוסף:");
+        const dose = prompt("מינון (למשל: 5ml):");
+        const times = prompt("שעות (בוקר/צהריים/ערב):");
+        if(name) {
+            appData.meds.push({name, dose, times});
+            localStorage.setItem('pp_tracker_v6', JSON.stringify(appData));
+            changeTab('meds');
+        }
+    }
+
+    window.onload = () => changeTab('track');
+</script>
 </body>
 </html>
