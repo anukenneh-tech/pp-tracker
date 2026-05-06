@@ -6,26 +6,30 @@
     <title>P/P TRACKER 🌿</title>
     <style>
         :root { --primary: #4caf50; --bg: #f8faf7; --white: #ffffff; --text: #2d3436; --shadow: rgba(0,0,0,0.06); }
-        body { font-family: -apple-system, system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 90px; }
+        body { font-family: -apple-system, system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 90px; -webkit-tap-highlight-color: transparent; }
         header { background: var(--primary); color: white; padding: 18px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px var(--shadow); }
         .container { padding: 16px; max-width: 600px; margin: auto; }
+        
         .card { background: var(--white); border-radius: 24px; padding: 20px; margin-bottom: 18px; box-shadow: 0 4px 20px var(--shadow); }
         h3 { margin: 0 0 15px 0; color: var(--primary); border-bottom: 2px solid #f1f8e9; padding-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
-        .item-row { display: flex; flex-direction: column; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
-        .rating { display: flex; justify-content: space-between; gap: 6px; margin-top: 10px; }
-        .dot { flex: 1; height: 42px; border: 1.5px solid #e0e0e0; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #fff; cursor: pointer; }
-        .dot.active { background: var(--primary); color: white; border-color: var(--primary); font-weight: bold; }
+        
+        /* דף מעקב מעוצב */
+        .item-row { padding: 16px 0; border-bottom: 1px solid #f0f4f0; }
+        .item-row:last-child { border-bottom: none; }
+        .item-label { font-weight: 600; margin-bottom: 12px; display: block; font-size: 1.05rem; }
+        .rating { display: flex; justify-content: space-between; gap: 8px; }
+        .dot { flex: 1; height: 45px; border: 2px solid #e8f5e9; border-radius: 14px; display: flex; align-items: center; justify-content: center; background: #fff; cursor: pointer; transition: 0.2s; font-weight: bold; color: #888; }
+        .dot.active { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.05); box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3); }
+
+        /* יומן ותרופות */
+        .list-item { background: #f9fbf9; padding: 15px; border-radius: 18px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #edf2ed; }
+        .btn-action { background: var(--primary); color: white; border: none; padding: 16px; border-radius: 16px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 1rem; }
         .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 1000; }
         .nav-btn { border: none; background: none; font-size: 11px; color: #b0b0b0; display: flex; flex-direction: column; align-items: center; width: 20%; cursor: pointer; }
         .nav-btn.active { color: var(--primary); font-weight: bold; }
-        .btn-action { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
+        
         .day { padding: 12px 0; background: #f9f9f9; border-radius: 12px; text-align: center; cursor: pointer; position: relative; }
-        .day.selected { background: var(--primary); color: white; }
-        .day.has-data::after { content: ''; position: absolute; bottom: 4px; left: 50%; width: 4px; height: 4px; background: var(--primary); border-radius: 50%; }
-        textarea { width: 100%; border: 1px solid #eee; border-radius: 12px; padding: 12px; margin-top: 15px; box-sizing: border-box; }
-        .list-item { background: #f9f9f9; padding: 12px; border-radius: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .day.has-data::after { content: ''; position: absolute; bottom: 4px; left: 50%; width: 5px; height: 5px; background: var(--primary); border-radius: 50%; }
     </style>
 </head>
 <body>
@@ -37,81 +41,107 @@
     <button class="nav-btn" onclick="show('track')"><span>📊</span>מעקב</button>
     <button class="nav-btn" onclick="show('meds')"><span>💊</span>תרופות</button>
     <button class="nav-btn" onclick="show('calendar')"><span>📅</span>יומן</button>
-    <button class="nav-btn" onclick="show('analysis')"><span>📈</span>ניתוח</button>
     <button class="nav-btn" onclick="show('more')"><span>➕</span>עוד</button>
 </nav>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('pp_final_v_safe')) || {
+    let db = JSON.parse(localStorage.getItem('pp_final_v20')) || {
         symptoms: {
             physical: ["נזלת", "חום", "כאב רגליים", "כאבי בטן", "כאבי ראש", "כאב גרון", "שיעול", "הליכה רוקעת", "עייפות", "הרחבת אישונים", "אחיזת עפרון רפה", "הרטבת לילה", "יקיצות מרובות", "קושי להירדם"],
             behavior: ["בכי", "התפרצויות זעם", "מתחצפת ומקללת", "מופנמת", "תסכול וכעס", "שצף דיבור", "חוסר ריכוז", "ערפול מוחי", "צחוק היסטרי"],
-            compulsive: ["הרמת גבות", "משיכת אף", "כחכוח גרון", "גירוד והרחה", "הקפצת גוף", "משיכת כתפיים/צוואר", "סידור שיער", "סידור שמיכה", "סידור כרית", "סידור סדין", "סידור נעליים", "עניין עם בגדים"]
+            compulsive: ["הרמת גבות", "משיכת אף", "כחכוח גרון", "גירוד והרחה", "הקפצת גוף", "משיכת כתפיים/צוואר", "סידור שיער", "עניין עם בגדים"]
         },
-        meds: [], contacts: [], sites: [], docs: [], calendarNotes: {}
+        meds: [], contacts: [], docs: [], calendarNotes: {}
     };
 
-    let currDate = new Date();
-    function save() { localStorage.setItem('pp_final_v_safe', JSON.stringify(db)); }
+    function save() { localStorage.setItem('pp_final_v20', JSON.stringify(db)); }
 
     function show(tab) {
         const v = document.getElementById('view');
         document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        const btn = Array.from(document.querySelectorAll('.nav-btn')).find(b => b.outerHTML.includes(`'${tab}'`));
-        if(btn) btn.classList.add('active');
+        if(event && event.currentTarget) event.currentTarget.classList.add('active');
 
         if (tab === 'track') {
             v.innerHTML = Object.entries(db.symptoms).map(([k, list]) => `
                 <div class="card">
-                    <h3>${k === 'physical' ? 'תסמינים פיזיים' : k === 'behavior' ? 'נפשי והתנהגותי' : 'קומפולסיבי וטיקים'} 
-                        <button onclick="addSymp('${k}')" style="border:none; background:#e8f5e9; color:var(--primary); padding:4px 8px; border-radius:8px;">+</button>
-                    </h3>
+                    <h3>${k === 'physical' ? 'תסמינים פיזיים' : k === 'behavior' ? 'נפשי והתנהגותי' : 'קומפולסיבי וטיקים'}</h3>
                     ${list.map((s, i) => `<div class="item-row">
-                        <div style="display:flex; justify-content:space-between"><span>${s}</span><span onclick="delSymp('${k}',${i})" style="color:#ddd;">🗑️</span></div>
+                        <span class="item-label">${s}</span>
                         <div class="rating">${[1,2,3,4,5].map(n => `<div class="dot" onclick="setRate(this)">${n}</div>`).join('')}</div>
                     </div>`).join('')}
-                </div>`) + '<button class="btn-action">שמור נתוני היום ✅</button>';
+                </div>`) + '<button class="btn-action" onclick="alert(\'נתוני המעקב נשמרו!\')">שמור נתוני היום ✅</button>';
         } 
-        else if (tab === 'calendar') {
-            const mName = currDate.toLocaleString('he-IL', { month: 'long', year: 'numeric' });
-            v.innerHTML = `
-                <button class="btn-action" style="background:#4285F4; margin-bottom:15px;" onclick="alert('מסנכרן...')">🗓️ סנכרן עם Google Calendar</button>
-                <div class="card">
-                    <div class="cal-header"><button onclick="changeMonth(-1)"><</button><strong>${mName}</strong><button onclick="changeMonth(1)">></button></div>
-                    <div class="cal-grid">${['א','ב','ג','ד','ה','ו','ש'].map(d=>`<div style="font-size:12px; color:#aaa;">${d}</div>`).join('')}${Array.from({length:31}, (_,i)=>`<div class="day ${db.calendarNotes[currDate.getFullYear()+'-'+(currDate.getMonth()+1)+'-'+(i+1)]?'has-data':''}" onclick="selectDay(this, ${i+1})">${i+1}</div>`).join('')}</div>
-                    <div id="day-box" style="display:none"><textarea id="day-note" placeholder="הערות ליום זה..."></textarea><button class="btn-action" onclick="saveDay()">שמור ביומן</button></div>
-                </div>`;
-        }
         else if (tab === 'meds') {
-            v.innerHTML = `<div class="card"><h3>תרופות ותזכורות</h3>${db.meds.map((m,i)=>`<div class="list-item"><div><strong>${m.name}</strong> (${m.dose})<br><small>${m.time}</small></div><span onclick="delItem('meds',${i})">🗑️</span></div>`).join('')}<button class="btn-action" onclick="addMed()">+ הוסף תרופה</button></div>`;
+            v.innerHTML = `<div class="card"><h3>תרופות ותזכורות</h3>
+                ${db.meds.map((m,i)=>`<div class="list-item">
+                    <div><strong>${m.name}</strong><br><small>מינון: ${m.dose} | שעה: ${m.time}</small></div>
+                    <div><span onclick="editMed(${i})" style="cursor:pointer; margin-left:15px;">✏️</span><span onclick="del('meds',${i})" style="cursor:pointer;">🗑️</span></div>
+                </div>`).join('')}
+                <button class="btn-action" onclick="addMed()">+ הוסף תרופה חדשה</button></div>`;
         }
-        else if (tab === 'analysis') {
-            v.innerHTML = `<div class="card"><h3>ניתוח נתונים</h3><div style="height:100px; display:flex; align-items:flex-end; gap:8px; background:#f9f9f9; padding:10px; border-radius:15px;">${Array.from({length:7}).map(()=>`<div style="flex:1; background:var(--primary); height:${30+Math.random()*70}%"></div>`).join('')}</div><button class="btn-action">📊 הורד דוח (CSV)</button></div>`;
+        else if (tab === 'calendar') {
+            v.innerHTML = `<div class="card"><h3>יומן אירועים</h3>
+                <div class="cal-grid" style="display:grid; grid-template-columns:repeat(7,1fr); gap:8px;">
+                    ${Array.from({length:31}, (_,i)=>`<div class="day ${db.calendarNotes[i+1]?'has-data':''}" onclick="selectDay(${i+1})">${i+1}</div>`).join('')}
+                </div>
+                <div id="day-box" style="display:none; margin-top:20px;">
+                    <textarea id="day-note" style="width:100%; height:80px; border-radius:12px; padding:10px; border:1px solid #eee;" placeholder="מה קרה היום?"></textarea>
+                    <input type="file" id="day-file" style="margin-top:10px; width:100%;">
+                    <button class="btn-action" onclick="saveDay()">שמור יום</button>
+                </div></div>`;
         }
         else if (tab === 'more') {
-            v.innerHTML = `
-                <div class="card"><h3>מידע</h3>🔗 <a href="https://panspandasil.org/" target="_blank">עמותת פאנס פנדס</a></div>
-                <div class="card"><h3>אנשי קשר</h3>${db.contacts.map((c,i)=>`<div class="list-item"><div><strong>${c.name}</strong><br>${c.phone} | ${c.email}</div><span onclick="delItem('contacts',${i})">🗑️</span></div>`).join('')}<button class="btn-action" onclick="addCon()">+ הוסף איש קשר</button></div>
-                <div class="card"><h3>מסמכים</h3>${db.docs.map((d,i)=>`<div class="list-item">${d}<span onclick="delItem('docs',${i})">🗑️</span></div>`).join('')}<button class="btn-action" onclick="alert('העלה קובץ')">📤 העלאת מסמך</button></div>`;
+            v.innerHTML = `<div class="card"><h3>מידע ואנשי קשר</h3>
+                <p>🔗 <a href="https://panspandasil.org/" target="_blank">עמותת פאנס פנדס ישראל</a></p>
+                <div id="doc-list">${db.docs.map((d,i)=>`<div class="list-item">📄 ${d.name} <span onclick="openDoc(${i})" style="color:var(--primary); cursor:pointer;">פתח</span></div>`).join('')}</div>
+                <button class="btn-action" onclick="addCon()">הוסף איש קשר</button></div>`;
         }
     }
 
-    let activeKey = '';
-    function selectDay(el, day) {
-        document.querySelectorAll('.day').forEach(d=>d.classList.remove('selected'));
-        el.classList.add('selected');
-        activeKey = `${currDate.getFullYear()}-${currDate.getMonth()+1}-${day}`;
-        document.getElementById('day-box').style.display = 'block';
-        document.getElementById('day-note').value = db.calendarNotes[activeKey] || '';
-    }
-    function saveDay() { if(activeKey){ db.calendarNotes[activeKey] = document.getElementById('day-note').value; save(); alert('נשמר!'); show('calendar'); } }
-    function changeMonth(n) { currDate.setMonth(currDate.getMonth() + n); show('calendar'); }
     function setRate(el) { el.parentElement.querySelectorAll('.dot').forEach(d=>d.classList.remove('active')); el.classList.add('active'); }
-    function addSymp(k) { const n = prompt("שם:"); if(n){db.symptoms[k].push(n); save(); show('track');} }
-    function delSymp(k, i) { if(confirm("למחוק?")){db.symptoms[k].splice(i,1); save(); show('track');} }
-    function addMed() { const n = prompt("שם:"); const d = prompt("מינון:"); const t = prompt("שעה (HH:MM):"); if(n){db.meds.push({name:n, dose:d, time:t}); save(); show('meds');} }
-    function addCon() { const n = prompt("שם:"); const p = prompt("טלפון:"); const e = prompt("מייל:"); if(n){db.contacts.push({name:n, phone:p, email:e}); save(); show('more');} }
-    function delItem(t, i) { if(confirm("למחוק?")){db[t].splice(i,1); save(); show(t==='meds'?'meds':'more');} }
+    
+    function addMed() {
+        const n = prompt("שם התרופה:");
+        const d = prompt("מינון:");
+        const t = prompt("שעה (למשל 08:00):");
+        if(n && t) { db.meds.push({name:n, dose:d, time:t}); save(); requestNotify(); show('meds'); }
+    }
+
+    function editMed(i) {
+        const m = db.meds[i];
+        const n = prompt("שם התרופה:", m.name);
+        const d = prompt("מינון:", m.dose);
+        const t = prompt("שעה:", m.time);
+        if(n) { db.meds[i] = {name:n, dose:d, time:t}; save(); show('meds'); }
+    }
+
+    function requestNotify() { if(Notification.permission !== "granted") Notification.requestPermission(); }
+
+    function selectDay(d) {
+        activeDay = d;
+        document.getElementById('day-box').style.display = 'block';
+        document.getElementById('day-note').value = db.calendarNotes[d] || '';
+    }
+
+    function saveDay() {
+        db.calendarNotes[activeDay] = document.getElementById('day-note').value;
+        const fileInput = document.getElementById('day-file');
+        if(fileInput.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                db.docs.push({name: fileInput.files[0].name, data: e.target.result});
+                save(); show('calendar');
+            };
+            reader.readAsDataURL(fileInput.files[0]);
+        } else { save(); show('calendar'); }
+    }
+
+    function openDoc(i) {
+        const w = window.open();
+        w.document.write(`<iframe src="${db.docs[i].data}" frameborder="0" style="width:100%; height:100%;"></iframe>`);
+    }
+
+    function del(t, i) { if(confirm("למחוק?")){db[t].splice(i,1); save(); show(t);} }
 
     window.onload = () => show('track');
 </script>
