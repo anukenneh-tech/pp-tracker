@@ -5,32 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>P/P TRACKER 🌿</title>
     <style>
-        :root { --primary: #4caf50; --bg: #f8faf7; --white: #ffffff; --text: #2d3436; --light-gray: #f1f3f1; }
+        :root { --primary: #4caf50; --bg: #f8faf7; --white: #ffffff; --text: #2d3436; }
         body { font-family: -apple-system, system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 90px; }
-        header { background: var(--primary); color: white; padding: 18px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        header { background: var(--primary); color: white; padding: 18px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 100; }
         .container { padding: 16px; max-width: 500px; margin: auto; }
-        
-        /* כרטיסיות בעיצוב נקי */
         .card { background: var(--white); border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid #edf0ed; }
-        h3 { margin: 0 0 15px 0; color: var(--primary); display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; }
-        
-        /* שורות מעקב מעודנות */
-        .item-row { padding: 12px 0; border-bottom: 1px solid var(--light-gray); }
-        .item-row:last-child { border-bottom: none; }
+        h3 { margin: 0 0 15px 0; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .item-row { padding: 12px 0; border-bottom: 1px solid #f1f3f1; }
         .rating { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; }
-        .dot { flex: 1; height: 38px; border: 1.5px solid #eee; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #fff; cursor: pointer; transition: 0.2s; font-weight: 600; color: #b0b0b0; }
-        .dot.active { background: var(--primary); color: white; border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(76,175,80,0.2); }
-
-        /* ניווט */
+        .dot { flex: 1; height: 38px; border: 1.5px solid #eee; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #fff; cursor: pointer; font-weight: 600; color: #b0b0b0; }
+        .dot.active { background: var(--primary); color: white; border-color: var(--primary); }
         .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 1000; }
         .nav-btn { border: none; background: none; font-size: 11px; color: #b0b0b0; display: flex; flex-direction: column; align-items: center; width: 25%; cursor: pointer; }
         .nav-btn.active { color: var(--primary); font-weight: bold; }
-        
-        .btn-main { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 1rem; }
-        .day { padding: 12px 0; background: #f9fbf9; border-radius: 12px; text-align: center; cursor: pointer; position: relative; border: 1px solid #eee; }
-        .day.has-data::after { content: ''; position: absolute; bottom: 4px; left: 50%; width: 5px; height: 5px; background: var(--primary); border-radius: 50%; }
+        .btn-main { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
         .list-item { background: #fcfdfc; padding: 15px; border-radius: 15px; margin-bottom: 10px; border: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
-        .del-btn { color: #ffcdd2; font-size: 18px; cursor: pointer; margin-right: 10px; }
     </style>
 </head>
 <body>
@@ -46,16 +35,16 @@
 </nav>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('pp_tracker_final_v5')) || {
+    let db = JSON.parse(localStorage.getItem('pp_tracker_v6')) || {
         symptoms: {
             physical: ["נזלת", "חום", "כאב רגליים", "כאבי בטן", "כאבי ראש", "כאב גרון", "שיעול", "הליכה רוקעת", "עייפות", "הרחבת אישונים", "אחיזת עפרון רפה", "הרטבת לילה", "יקיצות מרובות", "קושי להירדם"],
-            behavior: ["בכי", "התפרצויות זעם", "מתחצפת ומקללת", "מופנמת", "תסכול וכעס", "שצף דיבור", "חוסר ריכוז", "ערפול מוחי", "צחוק היסטרי"],
-            compulsive: ["הרמת גבות", "משיכת אף", "כחכוח גרון", "גירוד והרחה", "הקפצת גוף", "משיכת כתפיים", "סידור שיער", "עניין עם בגדים"]
+            behavior: ["בכי", "התפרצויות זעם", "מתחצפת ומקללת", "מופנמת", "תסכול וכעס", "חוסר ריכוז", "ערפול מוחי"],
+            compulsive: ["הרמת גבות", "משיכת אף", "כחכוח גרון", "גירוד והרחה", "הקפצת גוף", "משיכת כתפיים", "סידור שיער"]
         },
         meds: [], contacts: [], calendar: {}
     };
 
-    function save() { localStorage.setItem('pp_tracker_final_v5', JSON.stringify(db)); }
+    function save() { localStorage.setItem('pp_tracker_v6', JSON.stringify(db)); }
 
     function show(tab) {
         const v = document.getElementById('view');
@@ -65,42 +54,50 @@
         if (tab === 'track') {
             v.innerHTML = Object.entries(db.symptoms).map(([k, list]) => `
                 <div class="card">
-                    <h3>${k === 'physical' ? 'פיזי' : k === 'behavior' ? 'נפשי' : 'טיקים'} 
-                        <span onclick="addSymp('${k}')" style="font-size:24px; cursor:pointer;">+</span>
-                    </h3>
+                    <h3>${k === 'physical' ? 'פיזי' : k === 'behavior' ? 'נפשי' : 'טיקים'} <span onclick="addSymp('${k}')">+</span></h3>
                     ${list.map((s, i) => `<div class="item-row">
-                        <div style="display:flex; justify-content:space-between"><strong>${s}</strong><span class="del-btn" onclick="delSymp('${k}',${i})">×</span></div>
+                        <div style="display:flex; justify-content:space-between"><strong>${s}</strong><span onclick="delSymp('${k}',${i})">×</span></div>
                         <div class="rating">${[1,2,3,4,5].map(n => `<div class="dot" onclick="setRate(this)">${n}</div>`).join('')}</div>
                     </div>`).join('')}
-                </div>`) + '<button class="btn-main">שמור נתוני היום ✅</button>';
+                </div>`) + '<button class="btn-main">שמור נתונים ✅</button>';
         } 
         else if (tab === 'meds') {
-            v.innerHTML = `<div class="card"><h3>תרופות ותזכורות</h3>
-                <button onclick="activateAlarms()" class="btn-main" style="background:#ff9800; margin-bottom:15px;">🔔 הפעל תזכורות (צפצוף בטלפון)</button>
+            v.innerHTML = `<div class="card"><h3>תרופות</h3>
+                <button onclick="activateAudio()" class="btn-main" style="background:#ff9800; margin-bottom:15px;">🔊 הפעל צליל תזכורת</button>
                 ${db.meds.map((m,i)=>`<div class="list-item"><div><strong>${m.name}</strong> (${m.dose})<br><small>${m.time}</small></div>
-                <div><span onclick="editMed(${i})" style="margin-left:15px;">✏️</span><span onclick="del('meds',${i})">🗑️</span></div></div>`).join('')}
+                <div><span onclick="editMed(${i})">✏️</span> <span onclick="del('meds',${i})">🗑️</span></div></div>`).join('')}
                 <button class="btn-main" onclick="addMed()">+ הוסף תרופה</button></div>`;
-        }
-        else if (tab === 'calendar') {
-            v.innerHTML = `<div class="card"><h3>יומן וסנכרון</h3>
-                <button class="btn-main" style="background:#4285F4; margin-bottom:20px;">🗓️ סנכרן עם Google Calendar</button>
-                <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:10px;">
-                    ${Array.from({length:31}, (_,i)=>`<div class="day ${db.calendar[i+1]?'has-data':''}" onclick="selDay(this, ${i+1})">${i+1}</div>`).join('')}
-                </div>
-                <div id="day-box" style="display:none; margin-top:20px;">
-                    <textarea id="day-note" style="width:100%; height:100px; border-radius:15px; padding:12px; border:1px solid #eee;" placeholder="מה קרה היום?"></textarea>
-                    <button class="btn-main" onclick="saveDay()">שמור יום</button>
-                </div></div>`;
         }
         else if (tab === 'more') {
             v.innerHTML = `
-                <div class="card"><h3>מידע מקצועי</h3>🔗 <a href="https://panspandasil.org/" target="_blank" style="color:var(--primary); font-weight:bold;">עמותת פאנס פנדס ישראל</a></div>
                 <div class="card"><h3>אנשי קשר</h3>
                 ${db.contacts.map((c,i)=>`<div class="list-item"><div><strong>${c.name}</strong><br>${c.phone} | ${c.email}</div><span onclick="del('contacts',${i})">🗑️</span></div>`).join('')}
-                <button class="btn-main" onclick="addCon()">+ הוסף איש קשר</button></div>
-                <div class="card"><h3>מסמכים</h3><button class="btn-main" style="background:#607d8b;">📤 העלאת מסמך לרופא</button></div>`;
+                <button class="btn-main" onclick="addCon()">+ איש קשר</button></div>
+                <div class="card"><h3>מידע</h3>🔗 <a href="https://panspandasil.org/" target="_blank">עמותת פאנס פנדס ישראל</a></div>`;
+        }
+        else if (tab === 'calendar') {
+            v.innerHTML = `<div class="card"><h3>יומן</h3><div style="display:grid; grid-template-columns:repeat(7,1fr); gap:8px;">
+                ${Array.from({length:31}, (_,i)=>`<div class="day" onclick="alert('הערה')">${i+1}</div>`).join('')}</div></div>`;
         }
     }
+
+    function activateAudio() {
+        if(Notification.permission !== "granted") Notification.requestPermission();
+        // יצירת צליל קצר כדי "להעיר" את רכיב האודיו של הדפדפן
+        const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+        audio.play().then(() => alert("הצליל הופעל! מעכשיו תקבל התראות עם צפצוף."));
+    }
+
+    setInterval(() => {
+        const now = new Date().toLocaleTimeString('he-IL', {hour12:false, hour:'2-digit', minute:'2-digit'});
+        db.meds.forEach(m => {
+            if(m.time === now) {
+                new Notification("זמן לתרופה: " + m.name);
+                const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+                audio.play();
+            }
+        });
+    }, 60000);
 
     function setRate(el) { el.parentElement.querySelectorAll('.dot').forEach(d=>d.classList.remove('active')); el.classList.add('active'); }
     function addSymp(k) { const n = prompt("שם:"); if(n){db.symptoms[k].push(n); save(); show('track');} }
@@ -108,31 +105,7 @@
     function addMed() { const n = prompt("שם:"); const d = prompt("מינון:"); const t = prompt("שעה (HH:MM):"); if(n){db.meds.push({name:n, dose:d, time:t}); save(); show('meds');} }
     function editMed(i) { const m = db.meds[i]; const n = prompt("שם:", m.name); if(n){db.meds[i].name = n; save(); show('meds');} }
     function addCon() { const n = prompt("שם:"); const p = prompt("טלפון:"); const e = prompt("מייל:"); if(n){db.contacts.push({name:n, phone:p, email:e}); save(); show('more');} }
-    function selDay(el, d) { activeDay = d; document.querySelectorAll('.day').forEach(d=>d.classList.remove('active')); el.classList.add('active'); document.getElementById('day-box').style.display='block'; document.getElementById('day-note').value = db.calendar[d] || ''; }
-    function saveDay() { db.calendar[activeDay] = document.getElementById('day-note').value; save(); show('calendar'); }
     function del(t, i) { if(confirm("למחוק?")){db[t].splice(i,1); save(); show(t==='meds'?'meds':'more');} }
-    
-    function activateAlarms() {
-        if(Notification.permission !== "granted") {
-            Notification.requestPermission().then(permission => {
-                if(permission === "granted") alert("תזכורות הופעלו בהצלחה!");
-            });
-        } else { alert("תזכורות כבר פעילות."); }
-    }
-
-    // בדיקת תרופות וצפצוף כל דקה
-    setInterval(() => {
-        const now = new Date().toLocaleTimeString('he-IL', {hour12:false, hour:'2-digit', minute:'2-digit'});
-        db.meds.forEach(m => {
-            if(m.time === now) {
-                new Notification("P/P Tracker: זמן לתרופה!", {
-                    body: `${m.name} - ${m.dose}`,
-                    icon: 'https://cdn-icons-png.flaticon.com/512/822/822143.png'
-                });
-                // ניתן להוסיף כאן קוד לצליל אם הדפדפן מאפשר
-            }
-        });
-    }, 60000);
 
     window.onload = () => show('track');
 </script>
