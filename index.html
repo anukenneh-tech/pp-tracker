@@ -10,24 +10,27 @@
         header { background: var(--primary); color: white; padding: 20px; text-align: center; font-weight: bold; font-size: 1.4rem; box-shadow: 0 2px 10px var(--shadow); }
         .container { padding: 20px; max-width: 600px; margin: auto; }
         
-        .card { background: var(--white); border-radius: 20px; padding: 18px; margin-bottom: 20px; box-shadow: 0 4px 15px var(--shadow); border: 1px solid rgba(0,0,0,0.02); }
-        h3 { margin-top: 0; color: var(--primary); border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .card { background: var(--white); border-radius: 20px; padding: 18px; margin-bottom: 20px; box-shadow: 0 4px 15px var(--shadow); }
+        h3 { margin-top: 0; color: var(--primary); border-bottom: 2px solid #f0f0f0; padding-bottom: 10px; display: flex; justify-content: space-between; }
+        
+        /* יומן מעוצב */
+        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .cal-header button { background: var(--primary); color: white; border: none; padding: 5px 15px; border-radius: 8px; cursor: pointer; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
+        .weekday { font-size: 12px; font-weight: bold; color: #888; padding-bottom: 5px; }
+        .day { padding: 12px 0; background: #f9f9f9; border-radius: 10px; font-size: 14px; cursor: pointer; border: 1px solid transparent; }
+        .day:hover { border-color: var(--primary); }
+        .day.today { background: #e8f5e9; border: 1.5px solid var(--primary); font-weight: bold; }
+        
+        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 1000; }
+        .nav-btn { border: none; background: none; font-size: 12px; color: #a0a0a0; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .nav-btn.active { color: var(--primary); font-weight: bold; }
+        .btn-action { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; margin-top: 10px; cursor: pointer; }
         
         .item-row { display: flex; flex-direction: column; padding: 12px 0; border-bottom: 1px solid #f9f9f9; }
-        .item-label { font-weight: 500; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; }
-        
-        .rating { display: flex; justify-content: space-between; gap: 8px; }
-        .dot { flex: 1; height: 38px; border: 1.5px solid #e0e0e0; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; cursor: pointer; transition: all 0.2s; background: #fff; }
-        .dot.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3); }
-        
-        .nav { position: fixed; bottom: 0; width: 100%; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 1000; }
-        .nav-btn { border: none; background: none; font-size: 12px; color: #a0a0a0; display: flex; flex-direction: column; align-items: center; transition: 0.3s; }
-        .nav-btn i { font-size: 20px; margin-bottom: 4px; }
-        .nav-btn.active { color: var(--primary); transform: translateY(-2px); }
-        
-        .btn-action { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 12px; width: 100%; font-weight: bold; font-size: 16px; margin-top: 10px; cursor: pointer; }
-        .file-item { background: #f1f8e9; padding: 10px 15px; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .del-icon { color: #ff7675; cursor: pointer; font-size: 18px; }
+        .rating { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; }
+        .dot { flex: 1; height: 38px; border: 1.5px solid #e0e0e0; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #fff; }
+        .dot.active { background: var(--primary); color: white; border-color: var(--primary); }
     </style>
 </head>
 <body>
@@ -36,15 +39,15 @@
 <div class="container" id="view"></div>
 
 <nav class="nav">
-    <button class="nav-btn active" onclick="show('track')"><i>📊</i><span>מעקב</span></button>
-    <button class="nav-btn" onclick="show('meds')"><i>💊</i><span>תרופות</span></button>
-    <button class="nav-btn" onclick="show('calendar')"><i>📅</i><span>יומן</span></button>
-    <button class="nav-btn" onclick="show('analysis')"><i>📈</i><span>ניתוח</span></button>
-    <button class="nav-btn" onclick="show('more')"><i>➕</i><span>עוד</span></button>
+    <button class="nav-btn active" onclick="show('track')">📊<span>מעקב</span></button>
+    <button class="nav-btn" onclick="show('meds')">💊<span>תרופות</span></button>
+    <button class="nav-btn" onclick="show('calendar')">📅<span>יומן</span></button>
+    <button class="nav-btn" onclick="show('analysis')">📈<span>ניתוח</span></button>
+    <button class="nav-btn" onclick="show('more')">➕<span>עוד</span></button>
 </nav>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('pp_final_v6')) || {
+    let db = JSON.parse(localStorage.getItem('pp_final_v7')) || {
         symptoms: {
             physical: ["נזלת", "חום", "כאב רגליים", "כאבי בטן", "כאבי ראש", "כאב גרון", "שיעול", "הליכה רוקעת", "עייפות", "הרחבת אישונים", "אחיזת עפרון רפה", "הרטבת לילה", "יקיצות מרובות", "קושי להירדם"],
             behavior: ["בכי", "התפרצויות זעם", "מתחצפת ומקללת", "מופנמת", "תסכול וכעס", "שצף דיבור", "חוסר ריכוז", "ערפול מוחי", "צחוק היסטרי"],
@@ -53,7 +56,9 @@
         meds: [], contacts: [], sites: [], docs: [], logs: {}
     };
 
-    function save() { localStorage.setItem('pp_final_v6', JSON.stringify(db)); }
+    let currDate = new Date();
+
+    function save() { localStorage.setItem('pp_final_v7', JSON.stringify(db)); }
 
     function show(tab) {
         const v = document.getElementById('view');
@@ -63,44 +68,61 @@
         if (tab === 'track') {
             v.innerHTML = Object.entries(db.symptoms).map(([k, list]) => `
                 <div class="card">
-                    <h3>${k === 'physical' ? 'תסמינים פיזיים' : k === 'behavior' ? 'נפשי והתנהגותי' : 'קומפולסיבי וטיקים'} <button onclick="addSymp('${k}')" style="font-size:14px; background:#e8f5e9; border:none; color:var(--primary); padding:5px 10px; border-radius:8px;">+ הוסף</button></h3>
+                    <h3>${k === 'physical' ? 'פיזי' : k === 'behavior' ? 'התנהגותי' : 'קומפולסיבי'} <button onclick="addSymp('${k}')" style="font-size:12px; border:none; background:#e8f5e9; color:var(--primary); border-radius:5px;">+</button></h3>
                     ${list.map((s, i) => `
                         <div class="item-row">
-                            <div class="item-label">
-                                <span>${s}</span>
-                                <span style="font-size:12px; color:#ccc;" onclick="delSymp('${k}',${i})">🗑️</span>
-                            </div>
+                            <span>${s}</span>
                             <div class="rating">
                                 ${[1,2,3,4,5].map(n => `<div class="dot" onclick="setRate(this)">${n}</div>`).join('')}
                             </div>
                         </div>`).join('')}
-                </div>`).join('') + '<button class="btn-action">שמור נתוני היום ✅</button>';
+                </div>`) + '<button class="btn-action">שמור נתוני היום ✅</button>';
         } 
-        else if (tab === 'meds') {
-            v.innerHTML = `<div class="card"><h3>תרופות ותזכורות</h3>${db.meds.map((m,i)=>`<div class="file-item"><span><strong>${m.name}</strong> (${m.times})</span><span class="del-icon" onclick="del('meds',${i})">×</span></div>`).join('')}<button class="btn-action" onclick="addMed()">+ הוסף תרופה</button></div>`;
+        
+        else if (tab === 'calendar') {
+            const monthName = currDate.toLocaleString('he-IL', { month: 'long', year: 'numeric' });
+            v.innerHTML = `
+                <div class="card">
+                    <div class="cal-header">
+                        <button onclick="currDate.setMonth(currDate.getMonth()-1); show('calendar')"> הקודם </button>
+                        <strong>${monthName}</strong>
+                        <button onclick="currDate.setMonth(currDate.getMonth()+1); show('calendar')"> הבא </button>
+                    </div>
+                    <div class="cal-grid">
+                        ${['א','ב','ג','ד','ה','ו','ש'].map(d=>`<div class="weekday">${d}</div>`).join('')}
+                        ${Array.from({length: 31}, (_, i) => `<div class="day ${i+1 === new Date().getDate() && currDate.getMonth() === new Date().getMonth() ? 'today' : ''}" onclick="alert('אירועי יום ${i+1}')">${i+1}</div>`).join('')}
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>הוספת אירוע / סיכום</h3>
+                    <textarea placeholder="מה היה היום?" style="width:100%; border:1px solid #eee; border-radius:10px; padding:10px;"></textarea>
+                    <input type="file" multiple style="margin-top:10px;">
+                    <button class="btn-action">שמור ביומן</button>
+                </div>`;
         }
+        
+        else if (tab === 'meds') {
+            v.innerHTML = `<div class="card"><h3>תרופות ותוספים</h3>${db.meds.map((m,i)=>`<div style="padding:10px; border-bottom:1px solid #eee;"><strong>${m.name}</strong> (${m.times})</div>`).join('')}<button class="btn-action" onclick="addMed()">+ הוסף תרופה</button></div>`;
+        }
+
         else if (tab === 'more') {
             v.innerHTML = `
-                <div class="card"><h3>סיכומים רפואיים ומסמכים</h3><input type="file" id="fup" onchange="upDoc()" style="display:none"><button class="btn-action" onclick="document.getElementById('fup').click()">📤 העלאת מסמך חדש</button><div style="margin-top:15px;">${db.docs.map((d,i)=>`<div class="file-item"><span>📄 ${d}</span><span class="del-icon" onclick="del('docs',${i})">×</span></div>`).join('')}</div></div>
-                <div class="card"><h3>אנשי קשר</h3>${db.contacts.map((c,i)=>`<div class="file-item"><span>${c.name}: ${c.phone}</span><span class="del-icon" onclick="del('contacts',${i})">×</span></div>`).join('')}<button class="btn-action" onclick="addCon()">+ הוסף איש קשר</button></div>
-                <div class="card"><h3>קישורים</h3>${db.sites.map((s,i)=>`<div class="file-item"><a href="${s.url}" target="_blank" style="color:inherit; text-decoration:none;">🔗 ${s.name}</a><span class="del-icon" onclick="del('sites',${i})">×</span></div>`).join('')}<button class="btn-action" onclick="addSite()">+ הוסף אתר</button></div>`;
+                <div class="card"><h3>סיכומים ומסמכים</h3><input type="file" id="fup" onchange="upDoc()" style="display:none"><button class="btn-action" onclick="document.getElementById('fup').click()">📤 העלאת מסמך</button><div>${db.docs.map(d=>`<div>📄 ${d}</div>`).join('')}</div></div>
+                <div class="card"><h3>אנשי קשר</h3>${db.contacts.map(c=>`<div>${c.name}: ${c.phone}</div>`).join('')}<button class="btn-action" onclick="addCon()">+ הוסף איש קשר</button></div>
+                <div class="card"><h3>אתרים</h3>${db.sites.map(s=>`<div><a href="${s.url}" target="_blank">${s.name}</a></div>`).join('')}<button class="btn-action" onclick="addSite()">+ הוסף אתר</button></div>`;
         }
-        else if (tab === 'calendar') {
-            v.innerHTML = `<div class="card"><h3>יומן מעקב</h3><div style="display:grid; grid-template-columns:repeat(7,1fr); gap:8px;">${Array.from({length:31}, (_,i)=>`<div onclick="alert('יום ${i+1}')" style="padding:12px 0; background:#f9f9f9; border-radius:10px; text-align:center; font-size:14px;">${i+1}</div>`).join('')}</div></div>`;
-        }
+        
         else if (tab === 'analysis') {
-            v.innerHTML = `<div class="card"><h3>ניתוח נתונים</h3><div style="height:120px; background:#fdfdfd; border-radius:15px; margin-bottom:20px; display:flex; align-items:flex-end; gap:8px; padding:10px; border:1px solid #f0f0f0;">${Array.from({length:7}).map(()=>`<div style="flex:1; background:linear-gradient(to top, var(--primary), #81c784); border-radius:5px 5px 0 0; height:${20 + Math.random()*80}%"></div>`).join('')}</div><button class="btn-action">📊 ייצוא דוח לרופא (CSV)</button></div>`;
+            v.innerHTML = `<div class="card"><h3>ניתוח נתונים</h3><div style="height:100px; display:flex; align-items:flex-end; gap:5px; background:#f9f9f9; padding:10px; border-radius:10px;">${Array.from({length:7}).map(()=>`<div style="flex:1; background:var(--primary); height:${20+Math.random()*80}%"></div>`).join('')}</div><button class="btn-action">הורד דוח CSV</button></div>`;
         }
     }
 
     function setRate(el) { el.parentElement.querySelectorAll('.dot').forEach(d=>d.classList.remove('active')); el.classList.add('active'); }
-    function addSymp(k) { const n = prompt("שם התופעה:"); if(n){db.symptoms[k].push(n); save(); show('track');} }
-    function delSymp(k, i) { if(confirm("למחוק?")){db.symptoms[k].splice(i,1); save(); show('track');} }
+    function addSymp(k) { const n = prompt("שם:"); if(n){db.symptoms[k].push(n); save(); show('track');} }
     function addMed() { const n = prompt("שם:"); const t = prompt("שעות:"); if(n){db.meds.push({name:n, times:t}); save(); show('meds');} }
     function addCon() { const n = prompt("שם:"); const p = prompt("טלפון:"); if(n){db.contacts.push({name:n, phone:p}); save(); show('more');} }
     function addSite() { const n = prompt("שם:"); const u = prompt("URL:"); if(n){db.sites.push({name:n, url:u}); save(); show('more');} }
     function upDoc() { const f = document.getElementById('fup').files[0]; if(f){db.docs.push(f.name); save(); show('more');} }
-    function del(t, i) { if(confirm("למחוק?")){db[t].splice(i,1); save(); show(t==='meds'?'meds':'more');} }
 
     window.onload = () => show('track');
 </script>
