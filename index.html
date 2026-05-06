@@ -20,12 +20,15 @@
         .nav-btn.active { color: var(--primary); font-weight: bold; }
         .btn-main { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
         
-        /* עיצוב היומן */
+        /* יומן */
         .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; }
         .day { padding: 10px 0; background: #f9f9f9; border-radius: 10px; cursor: pointer; position: relative; font-weight: bold; border: 1px solid #eee; }
         .day.has-note::after { content: ''; position: absolute; bottom: 4px; left: 50%; width: 5px; height: 5px; background: var(--primary); border-radius: 50%; transform: translateX(-50%); }
         .day.selected { background: var(--primary); color: white; }
-        textarea { width: 100%; height: 100px; border-radius: 12px; border: 1px solid #eee; padding: 10px; margin-top: 10px; box-sizing: border-box; font-family: inherit; }
+        textarea { width: 100%; height: 100px; border-radius: 12px; border: 1px solid #eee; padding: 10px; margin-top: 10px; box-sizing: border-box; }
+        
+        /* רשימות בדף עוד */
+        .list-item { background: #fcfdfc; padding: 15px; border-radius: 15px; margin-bottom: 10px; border: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
@@ -42,7 +45,7 @@
 </nav>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('pp_tracker_v9')) || {
+    let db = JSON.parse(localStorage.getItem('pp_tracker_v10')) || {
         symptoms: {
             physical: ["נזלת", "חום", "כאב רגליים", "כאבי בטן", "כאבי ראש", "כאב גרון", "שיעול", "הליכה רוקעת", "עייפות", "הרחבת אישונים", "אחיזת עפרון רפה", "הרטבת לילה", "יקיצות מרובות", "קושי להירדם"],
             behavior: ["בכי", "התפרצויות זעם", "מתחצפת ומקללת", "מופנמת", "תסכול וכעס", "חוסר ריכוז", "ערפול מוחי"],
@@ -52,8 +55,7 @@
     };
 
     let activeDay = null;
-
-    function save() { localStorage.setItem('pp_tracker_v9', JSON.stringify(db)); }
+    function save() { localStorage.setItem('pp_tracker_v10', JSON.stringify(db)); }
 
     function show(tab) {
         const v = document.getElementById('view');
@@ -71,32 +73,33 @@
                 </div>`) + '<button class="btn-main">שמור נתונים ✅</button>';
         } 
         else if (tab === 'calendar') {
-            v.innerHTML = `<div class="card"><h3>יומן מעקב</h3>
-                <div class="cal-grid">
-                    ${Array.from({length: 31}, (_, i) => {
-                        const d = i + 1;
-                        return `<div class="day ${db.calendar[d] ? 'has-note' : ''}" onclick="selDay(this, ${d})">${d}</div>`;
-                    }).join('')}
-                </div>
-                <div id="day-box" style="display:none; margin-top:20px;">
-                    <h4 id="selected-date-label"></h4>
-                    <textarea id="day-note" placeholder="רשמי כאן הערות, אירועים או מסמכים שהוגשו..."></textarea>
-                    <button class="btn-main" onclick="saveDay()">שמור הערה ליומן</button>
-                </div></div>`;
+            v.innerHTML = `
+                <div class="card">
+                    <button class="btn-main" style="background:#4285F4; margin-bottom:15px;">🗓️ סנכרון עם Google Calendar</button>
+                    <div class="cal-grid">
+                        ${Array.from({length: 31}, (_, i) => {
+                            const d = i + 1;
+                            return `<div class="day ${db.calendar[d] ? 'has-note' : ''}" onclick="selDay(this, ${d})">${d}</div>`;
+                        }).join('')}
+                    </div>
+                    <div id="day-box" style="display:none; margin-top:20px;">
+                        <textarea id="day-note" placeholder="רשמי כאן הערות ליום זה..."></textarea>
+                        <button class="btn-main" onclick="saveDay()">שמור הערה</button>
+                    </div>
+                </div>`;
         }
         else if (tab === 'meds') {
             v.innerHTML = `<div class="card"><h3>תרופות</h3>
-                ${db.meds.map((m,i)=>`<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;">
-                    <div><strong>${m.name}</strong> (${m.dose})<br><small>${m.time}</small></div>
-                    <span onclick="del('meds',${i})">🗑️</span>
-                </div>`).join('')}
+                ${db.meds.map((m,i)=>`<div class="list-item"><div><strong>${m.name}</strong> (${m.dose})<br><small>${m.time}</small></div><span onclick="del('meds',${i})">🗑️</span></div>`).join('')}
                 <button class="btn-main" onclick="addMed()">+ הוסף תרופה</button></div>`;
         }
         else if (tab === 'more') {
-            v.innerHTML = `<div class="card"><h3>אנשי קשר</h3>
-                ${db.contacts.map((c,i)=>`<div style="padding:10px; border-bottom:1px solid #eee;"><strong>${c.name}</strong><br>${c.phone} | ${c.email}</div>`).join('')}
+            v.innerHTML = `
+                <div class="card"><h3>אנשי קשר</h3>
+                ${db.contacts.map((c,i)=>`<div class="list-item"><div><strong>${c.name}</strong><br>${c.phone} | ${c.email}</div><span onclick="del('contacts',${i})">🗑️</span></div>`).join('')}
                 <button class="btn-main" onclick="addCon()">+ הוסף איש קשר</button></div>
-                <div class="card"><h3>מידע</h3>🔗 <a href="https://panspandasil.org/" target="_blank">עמותת פאנס פנדס ישראל</a></div>`;
+                <div class="card"><h3>מידע מקצועי</h3><div class="list-item">🔗 <a href="https://panspandasil.org/" target="_blank">עמותת פאנס פנדס ישראל</a></div></div>
+                <div class="card"><h3>מסמכים</h3><button class="btn-main" style="background:#607d8b">📤 העלאת מסמך</button></div>`;
         }
     }
 
@@ -105,25 +108,19 @@
         document.querySelectorAll('.day').forEach(day => day.classList.remove('selected'));
         el.classList.add('selected');
         document.getElementById('day-box').style.display = 'block';
-        document.getElementById('selected-date-label').innerText = "הערות ליום " + d;
         document.getElementById('day-note').value = db.calendar[d] || '';
     }
 
     function saveDay() {
-        if (activeDay) {
-            db.calendar[activeDay] = document.getElementById('day-note').value;
-            save();
-            alert("הערה נשמרה!");
-            show('calendar');
-        }
+        if (activeDay) { db.calendar[activeDay] = document.getElementById('day-note').value; save(); show('calendar'); }
     }
 
     function setRate(el) { el.parentElement.querySelectorAll('.dot').forEach(d=>d.classList.remove('active')); el.classList.add('active'); }
     function addSymp(k) { const n = prompt("שם:"); if(n){db.symptoms[k].push(n); save(); show('track');} }
     function delSymp(k, i) { if(confirm("למחוק?")){db.symptoms[k].splice(i,1); save(); show('track');} }
-    function addMed() { const n = prompt("שם:"); const d = prompt("מינון:"); const t = prompt("שעה (HH:MM):"); if(n){db.meds.push({name:n, dose:d, time:t}); save(); show('meds');} }
+    function addMed() { const n = prompt("שם:"); const d = prompt("מינון:"); const t = prompt("שעה:"); if(n){db.meds.push({name:n, dose:d, time:t}); save(); show('meds');} }
     function addCon() { const n = prompt("שם:"); const p = prompt("טלפון:"); const e = prompt("מייל:"); if(n){db.contacts.push({name:n, phone:p, email:e}); save(); show('more');} }
-    function del(t, i) { db[t].splice(i,1); save(); show(t); }
+    function del(t, i) { db[t].splice(i,1); save(); show(tab === 'meds' ? 'meds' : 'more'); }
 
     window.onload = () => show('track');
 </script>
