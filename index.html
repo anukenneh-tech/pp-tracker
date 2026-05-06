@@ -4,22 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>P/P TRACKER 🌿</title>
+    <!-- הגדרות להפיכה לאפליקציה במסך הבית -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <style>
         :root { --primary: #4caf50; --bg: #f8faf7; --white: #ffffff; --text: #2d3436; }
         body { font-family: -apple-system, system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 90px; }
-        header { background: var(--primary); color: white; padding: 18px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 100; }
+        header { background: var(--primary); color: white; padding: 18px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .container { padding: 16px; max-width: 500px; margin: auto; }
         .card { background: var(--white); border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid #edf0ed; }
-        h3 { margin: 0 0 15px 0; color: var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        h3 { margin: 0 0 15px 0; color: var(--primary); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f3f1; padding-bottom: 8px; }
         .item-row { padding: 12px 0; border-bottom: 1px solid #f1f3f1; }
         .rating { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; }
-        .dot { flex: 1; height: 38px; border: 1.5px solid #eee; border-radius: 10px; display: flex; align-items: center; justify-content: center; background: #fff; cursor: pointer; font-weight: 600; color: #b0b0b0; }
-        .dot.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .dot { flex: 1; height: 42px; border: 1.5px solid #eee; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #fff; cursor: pointer; font-weight: 600; color: #b0b0b0; }
+        .dot.active { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.05); }
         .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 1000; }
-        .nav-btn { border: none; background: none; font-size: 11px; color: #b0b0b0; display: flex; flex-direction: column; align-items: center; width: 25%; cursor: pointer; }
+        .nav-btn { border: none; background: none; font-size: 11px; color: #b0b0b0; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
         .nav-btn.active { color: var(--primary); font-weight: bold; }
-        .btn-main { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .list-item { background: #fcfdfc; padding: 15px; border-radius: 15px; margin-bottom: 10px; border: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+        .btn-main { background: var(--primary); color: white; border: none; padding: 15px; border-radius: 15px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 1rem; }
+        .list-item { background: #fcfdfc; padding: 15px; border-radius: 18px; margin-bottom: 10px; border: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
@@ -35,7 +38,7 @@
 </nav>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('pp_tracker_v6')) || {
+    let db = JSON.parse(localStorage.getItem('pp_tracker_v7')) || {
         symptoms: {
             physical: ["נזלת", "חום", "כאב רגליים", "כאבי בטן", "כאבי ראש", "כאב גרון", "שיעול", "הליכה רוקעת", "עייפות", "הרחבת אישונים", "אחיזת עפרון רפה", "הרטבת לילה", "יקיצות מרובות", "קושי להירדם"],
             behavior: ["בכי", "התפרצויות זעם", "מתחצפת ומקללת", "מופנמת", "תסכול וכעס", "חוסר ריכוז", "ערפול מוחי"],
@@ -44,7 +47,7 @@
         meds: [], contacts: [], calendar: {}
     };
 
-    function save() { localStorage.setItem('pp_tracker_v6', JSON.stringify(db)); }
+    function save() { localStorage.setItem('pp_tracker_v7', JSON.stringify(db)); }
 
     function show(tab) {
         const v = document.getElementById('view');
@@ -54,16 +57,16 @@
         if (tab === 'track') {
             v.innerHTML = Object.entries(db.symptoms).map(([k, list]) => `
                 <div class="card">
-                    <h3>${k === 'physical' ? 'פיזי' : k === 'behavior' ? 'נפשי' : 'טיקים'} <span onclick="addSymp('${k}')">+</span></h3>
+                    <h3>${k === 'physical' ? 'פיזי' : k === 'behavior' ? 'נפשי' : 'טיקים'} <span onclick="addSymp('${k}')" style="cursor:pointer">+</span></h3>
                     ${list.map((s, i) => `<div class="item-row">
-                        <div style="display:flex; justify-content:space-between"><strong>${s}</strong><span onclick="delSymp('${k}',${i})">×</span></div>
+                        <div style="display:flex; justify-content:space-between"><strong>${s}</strong><span onclick="delSymp('${k}',${i})" style="color:#ddd">🗑️</span></div>
                         <div class="rating">${[1,2,3,4,5].map(n => `<div class="dot" onclick="setRate(this)">${n}</div>`).join('')}</div>
                     </div>`).join('')}
                 </div>`) + '<button class="btn-main">שמור נתונים ✅</button>';
         } 
         else if (tab === 'meds') {
             v.innerHTML = `<div class="card"><h3>תרופות</h3>
-                <button onclick="activateAudio()" class="btn-main" style="background:#ff9800; margin-bottom:15px;">🔊 הפעל צליל תזכורת</button>
+                <button onclick="activateAlarms()" class="btn-main" style="background:#ff9800; margin-bottom:15px;">🔔 הפעל צפצוף בטלפון</button>
                 ${db.meds.map((m,i)=>`<div class="list-item"><div><strong>${m.name}</strong> (${m.dose})<br><small>${m.time}</small></div>
                 <div><span onclick="editMed(${i})">✏️</span> <span onclick="del('meds',${i})">🗑️</span></div></div>`).join('')}
                 <button class="btn-main" onclick="addMed()">+ הוסף תרופה</button></div>`;
@@ -73,7 +76,8 @@
                 <div class="card"><h3>אנשי קשר</h3>
                 ${db.contacts.map((c,i)=>`<div class="list-item"><div><strong>${c.name}</strong><br>${c.phone} | ${c.email}</div><span onclick="del('contacts',${i})">🗑️</span></div>`).join('')}
                 <button class="btn-main" onclick="addCon()">+ איש קשר</button></div>
-                <div class="card"><h3>מידע</h3>🔗 <a href="https://panspandasil.org/" target="_blank">עמותת פאנס פנדס ישראל</a></div>`;
+                <div class="card"><h3>מידע מקצועי</h3>🔗 <a href="https://panspandasil.org/" target="_blank">עמותת פאנס פנדס ישראל</a></div>
+                <div class="card"><h3>מסמכים</h3><button class="btn-main" style="background:#607d8b">📤 העלאת מסמך</button></div>`;
         }
         else if (tab === 'calendar') {
             v.innerHTML = `<div class="card"><h3>יומן</h3><div style="display:grid; grid-template-columns:repeat(7,1fr); gap:8px;">
@@ -81,18 +85,19 @@
         }
     }
 
-    function activateAudio() {
-        if(Notification.permission !== "granted") Notification.requestPermission();
-        // יצירת צליל קצר כדי "להעיר" את רכיב האודיו של הדפדפן
+    function activateAlarms() {
+        if(Notification.permission !== "granted") {
+            Notification.requestPermission().then(p => { if(p === 'granted') alert("התראות אושרו!"); });
+        }
         const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
-        audio.play().then(() => alert("הצליל הופעל! מעכשיו תקבל התראות עם צפצוף."));
+        audio.play().then(() => alert("הצליל הופעל! עכשיו הטלפון יתריע."));
     }
 
     setInterval(() => {
         const now = new Date().toLocaleTimeString('he-IL', {hour12:false, hour:'2-digit', minute:'2-digit'});
         db.meds.forEach(m => {
             if(m.time === now) {
-                new Notification("זמן לתרופה: " + m.name);
+                new Notification("P/P Tracker: זמן לתרופה!", { body: `${m.name} - ${m.dose}` });
                 const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
                 audio.play();
             }
