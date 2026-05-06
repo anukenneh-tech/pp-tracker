@@ -4,58 +4,65 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>P/P TRACKER</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
     <style>
         :root { --primary: #4caf50; --bg: #f1f8e9; --text: #2e7d32; --white: #ffffff; }
-        body { font-family: sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; }
-        header { background: var(--primary); color: white; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 10; }
+        body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; }
+        header { background: var(--primary); color: white; padding: 15px; text-align: center; sticky: top; }
         .container { padding: 15px; max-width: 600px; margin: auto; }
         .card { background: var(--white); border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .rating { display: flex; gap: 5px; }
-        .dot { width: 30px; height: 30px; border-radius: 50%; border: 1px solid #ccc; display: flex; align-items: center; justify-content: center; font-size: 12px; cursor: pointer; }
+        .rating { display: flex; gap: 4px; }
+        .dot { width: 32px; height: 32px; border-radius: 6px; border: 1px solid #ddd; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .dot.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 15px 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
-        .nav-btn { border: none; background: none; font-size: 14px; color: #666; }
+        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; }
+        .nav-btn { border: none; background: none; font-size: 12px; color: #666; display: flex; flex-direction: column; align-items: center; }
         .nav-btn.active { color: var(--primary); font-weight: bold; }
+        .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; text-align: center; }
+        .day { padding: 10px; border: 1px solid #eee; border-radius: 5px; cursor: pointer; }
+        input[type="file"] { margin-top: 10px; }
     </style>
 </head>
 <body>
-    <header><h1>P/P TRACKER</h1></header>
-    <div class="container" id="content"></div>
+    <header><h1>P/P TRACKER 🌿</h1></header>
+    <div class="container" id="main"></div>
     <nav class="nav">
-        <button class="nav-btn active" onclick="render('track')">מעקב</button>
-        <button class="nav-btn" onclick="render('analysis')">ניתוח</button>
-        <button class="nav-btn" onclick="render('more')">עוד</button>
+        <button class="nav-btn active" onclick="show('track')">📊 מעקב</button>
+        <button class="nav-btn" onclick="show('meds')">💊 תרופות</button>
+        <button class="nav-btn" onclick="show('calendar')">📅 יומן</button>
+        <button class="nav-btn" onclick="show('analysis')">📈 ניתוח</button>
+        <button class="nav-btn" onclick="show('more')">➕ עוד</button>
     </nav>
 
     <script>
-        const data = {
+        const symptoms = {
             physical: ["נזלת", "חום", "כאב רגליים", "כאבי בטן", "כאבי ראש", "כאב גרון", "שיעול", "הליכה רוקעת", "עייפות", "הרחבת אישונים"],
             behavior: ["בכי", "התפרצויות זעם", "מתחצפת ומקללת", "מופנמת", "תסכול וכעס", "שצף דיבור", "חוסר ריכוז", "ערפול מוחי", "אחיזת עפרון רפה", "צחוק היסטרי"],
-            compulsive: ["הרמת גבות", "משיכת אף", "כחכוח גרון", "גירוד והרחה", "הקפצת גוף", "משיכת כתפיים", "סידור שיער", "סידור שמיכה", "סידור נעליים"]
+            compulsive: ["הרמת גבות", "משיכת אף", "כחכוח גרון", "גירוד והרחה", "הקפצת גוף", "משיכת כתפיים", "סידור שיער", "סידור שמיכה", "סידור כרית", "סידור סדין", "סידור נעליים", "עניין עם בגדים"]
         };
 
-        function render(tab) {
-            const cont = document.getElementById('content');
+        function show(tab) {
+            const main = document.getElementById('main');
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            if(tab === 'track') {
-                let h = '<h3>תסמינים</h3>';
-                for(let cat in data) {
-                    h += `<div class="card"><strong>${cat === 'physical' ? 'פיזי' : cat === 'behavior' ? 'התנהגותי' : 'קומפולסיבי'}</strong>`;
-                    data[cat].forEach(item => {
-                        h += `<div class="item-row"><span>${item}</span><div class="rating">`;
-                        for(let i=1; i<=5; i++) h += `<div class="dot" onclick="this.parentElement.querySelectorAll('.dot').forEach(d=>d.classList.remove('active'));this.classList.add('active')">${i}</div>`;
-                        h += `</div></div>`;
-                    });
-                    h += `</div>`;
-                }
-                cont.innerHTML = h;
+            event?.currentTarget?.classList?.add('active');
+
+            if (tab === 'track') {
+                main.innerHTML = Object.entries(symptoms).map(([key, list]) => `
+                    <div class="card">
+                        <h3>${key === 'physical' ? 'פיזי' : key === 'behavior' ? 'נפשי/התנהגותי' : 'קומפולסיבי/טיקים'}</h3>
+                        ${list.map(s => `<div class="item-row"><span>${s}</span><div class="rating">${[1,2,3,4,5].map(i => `<div class="dot" onclick="this.parentElement.querySelectorAll('.dot').forEach(d=>d.classList.remove('active'));this.classList.add('active')">${i}</div>`).join('')}</div></div>`).join('')}
+                    </div>
+                `).join('');
+            } else if (tab === 'meds') {
+                main.innerHTML = `<div class="card"><h3>מעקב תרופות ותוספים</h3><p>סימון מנות יומי:</p><div class="item-row"><span>תוסף 1</span><button onclick="this.style.background='green'">בוצע</button></div></div>`;
+            } else if (tab === 'calendar') {
+                main.innerHTML = `<div class="card"><h3>יומן וסיכומי ביקור</h3><div class="grid">${Array.from({length:31}, (_,i)=>`<div class="day">${i+1}</div>`).join('')}</div><hr><input type="file" accept="image/*,application/pdf" multiple><p>העלאת תמונות/מסמכים</p></div>`;
+            } else if (tab === 'more') {
+                main.innerHTML = `<div class="card"><h3>קישורים וקודי הנחה</h3><p><a href="https://il.iherb.com">iHerb</a> | קוד: PANS10</p><p>טלפונים חשובים: *הכנס טלפון*</p></div>`;
             } else {
-                cont.innerHTML = '<div class="card">בקרוב...</div>';
+                main.innerHTML = `<div class="card"><h3>ניתוח נתונים</h3><p>כאן יופיעו הגרפים וההשוואות.</p></div>`;
             }
         }
-        render('track');
+        show('track');
     </script>
 </body>
 </html>
