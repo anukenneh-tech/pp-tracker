@@ -5,28 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>P/P TRACKER 🌿</title>
     <style>
-        :root { --primary: #4caf50; --bg: #f4f7f2; --white: #ffffff; --text: #2d3436; --shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        body { font-family: -apple-system, system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 90px; }
-        header { background: var(--primary); color: white; padding: 18px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        .container { padding: 16px; max-width: 600px; margin: auto; }
+        :root { --primary: #4caf50; --bg: #f0f2f0; --white: #ffffff; --text: #333; }
+        body { font-family: system-ui, -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 80px; }
+        header { background: var(--primary); color: white; padding: 15px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .container { padding: 15px; max-width: 500px; margin: auto; }
         
-        /* עיצוב כרטיסיות מעקב */
-        .card { background: var(--white); border-radius: 20px; padding: 18px; margin-bottom: 15px; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.02); }
-        h3 { margin: 0 0 12px 0; color: var(--primary); display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; border-bottom: 1px solid #eee; padding-bottom: 8px; }
-        .item-row { padding: 12px 0; border-bottom: 1px solid #f9f9f9; }
-        .rating { display: flex; justify-content: space-between; gap: 8px; margin-top: 8px; }
-        .dot { flex: 1; height: 40px; border: 1.5px solid #eee; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #fff; cursor: pointer; transition: 0.2s; font-weight: bold; color: #aaa; }
-        .dot.active { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.05); }
+        /* עיצוב כרטיסיות */
+        .card { background: var(--white); border-radius: 18px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .card h3 { margin: 0 0 10px 0; color: var(--primary); display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; }
+        
+        /* שורות מעקב */
+        .item-row { border-bottom: 1px solid #eee; padding: 10px 0; }
+        .item-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 500; }
+        .rating { display: flex; justify-content: space-between; gap: 5px; }
+        .dot { flex: 1; height: 35px; border: 1px solid #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; background: #fff; cursor: pointer; }
+        .dot.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* ניווט ותפריטים */
-        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 1000; }
-        .nav-btn { border: none; background: none; font-size: 11px; color: #b0b0b0; display: flex; flex-direction: column; align-items: center; width: 20%; cursor: pointer; }
+        /* ניווט */
+        .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #ddd; }
+        .nav-btn { border: none; background: none; font-size: 11px; color: #999; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
         .nav-btn.active { color: var(--primary); font-weight: bold; }
-        .btn-action { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 14px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 1rem; }
         
-        .day { padding: 10px 0; background: #f9f9f9; border-radius: 10px; text-align: center; cursor: pointer; position: relative; }
-        .day.has-data::after { content: ''; position: absolute; bottom: 4px; left: 50%; width: 4px; height: 4px; background: var(--primary); border-radius: 50%; }
-        .list-item { background: #fcfdfc; padding: 12px; border-radius: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #f0f0f0; }
+        .btn { background: var(--primary); color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .day { padding: 10px; background: #f9f9f9; border-radius: 8px; text-align: center; cursor: pointer; position: relative; }
+        .day.has-note::after { content: ''; position: absolute; bottom: 3px; left: 50%; width: 4px; height: 4px; background: var(--primary); border-radius: 50%; }
+        .day.selected { background: var(--primary); color: white; }
     </style>
 </head>
 <body>
@@ -35,23 +38,23 @@
 <div class="container" id="view"></div>
 
 <nav class="nav">
-    <button class="nav-btn active" onclick="show('track')"><span>📊</span>מעקב</button>
-    <button class="nav-btn" onclick="show('meds')"><span>💊</span>תרופות</button>
-    <button class="nav-btn" onclick="show('calendar')"><span>📅</span>יומן</button>
-    <button class="nav-btn" onclick="show('more')"><span>➕</span>עוד</button>
+    <button class="nav-btn active" onclick="show('track')">📊<span>מעקב</span></button>
+    <button class="nav-btn" onclick="show('meds')">💊<span>תרופות</span></button>
+    <button class="nav-btn" onclick="show('calendar')">📅<span>יומן</span></button>
+    <button class="nav-btn" onclick="show('more')">➕<span>עוד</span></button>
 </nav>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('pp_final_v30')) || {
+    let db = JSON.parse(localStorage.getItem('pp_v4_db')) || {
         symptoms: {
             physical: ["נזלת", "חום", "כאב רגליים", "כאבי בטן", "כאבי ראש", "כאב גרון", "שיעול", "הליכה רוקעת", "עייפות", "הרחבת אישונים", "אחיזת עפרון רפה", "הרטבת לילה", "יקיצות מרובות", "קושי להירדם"],
             behavior: ["בכי", "התפרצויות זעם", "מתחצפת ומקללת", "מופנמת", "תסכול וכעס", "שצף דיבור", "חוסר ריכוז", "ערפול מוחי", "צחוק היסטרי"],
             compulsive: ["הרמת גבות", "משיכת אף", "כחכוח גרון", "גירוד והרחה", "הקפצת גוף", "משיכת כתפיים", "סידור שיער", "עניין עם בגדים"]
         },
-        meds: [], contacts: [], docs: [], calendarNotes: {}
+        meds: [], contacts: [], calendar: {}
     };
 
-    function save() { localStorage.setItem('pp_final_v30', JSON.stringify(db)); }
+    function save() { localStorage.setItem('pp_v4_db', JSON.stringify(db)); }
 
     function show(tab) {
         const v = document.getElementById('view');
@@ -62,51 +65,60 @@
             v.innerHTML = Object.entries(db.symptoms).map(([k, list]) => `
                 <div class="card">
                     <h3>${k === 'physical' ? 'תסמינים פיזיים' : k === 'behavior' ? 'נפשי והתנהגותי' : 'קומפולסיבי וטיקים'} 
-                        <button onclick="addSymp('${k}')" style="border:none; background:#e8f5e9; color:var(--primary); padding:2px 8px; border-radius:6px;">+</button>
+                        <button onclick="addS('${k}')" style="border:none; background:none; color:green; font-size:20px;">+</button>
                     </h3>
                     ${list.map((s, i) => `<div class="item-row">
-                        <div style="display:flex; justify-content:space-between"><span>${s}</span><span onclick="delSymp('${k}',${i})" style="color:#ddd;">🗑️</span></div>
+                        <div class="item-header"><span>${s}</span><span onclick="delS('${k}',${i})" style="color:#ccc;">🗑️</span></div>
                         <div class="rating">${[1,2,3,4,5].map(n => `<div class="dot" onclick="setRate(this)">${n}</div>`).join('')}</div>
                     </div>`).join('')}
-                </div>`) + '<button class="btn-action">שמור נתונים ✅</button>';
+                </div>`) + '<button class="btn">שמור נתוני יום ✅</button>';
         } 
         else if (tab === 'meds') {
             v.innerHTML = `<div class="card"><h3>תרופות ותזכורות</h3>
-                <button onclick="checkNotify()" style="background:#fff3e0; border:none; color:#e65100; padding:10px; width:100%; border-radius:10px; margin-bottom:15px; font-weight:bold;">🔔 הפעל צפצוף תזכורת</button>
-                ${db.meds.map((m,i)=>`<div class="list-item"><div><strong>${m.name}</strong> (${m.dose})<br><small>${m.time}</small></div>
-                <div><span onclick="editMed(${i})">✏️</span> <span onclick="del('meds',${i})">🗑️</span></div></div>`).join('')}
-                <button class="btn-action" onclick="addMed()">+ הוסף תרופה</button></div>`;
+                <button onclick="askN()" class="btn" style="background:#ff9800; margin-bottom:10px;">🔔 הפעל צפצוף בטלפון</button>
+                ${db.meds.map((m,i)=>`<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee;">
+                    <div><strong>${m.name}</strong> (${m.dose})<br><small>${m.time}</small></div>
+                    <div><span onclick="editM(${i})">✏️</span> <span onclick="del('meds',${i})">🗑️</span></div>
+                </div>`).join('')}
+                <button class="btn" onclick="addM()">+ הוסף תרופה</button></div>`;
         }
         else if (tab === 'calendar') {
-            v.innerHTML = `<div class="card"><h3>יומן וגוגל</h3>
-                <button class="btn-action" style="background:#4285F4; margin-bottom:15px;">🗓️ סנכרון עם Google Calendar</button>
-                <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:8px;">
-                    ${Array.from({length:31}, (_,i)=>`<div class="day ${db.calendarNotes[i+1]?'has-data':''}" onclick="selectDay(${i+1})">${i+1}</div>`).join('')}
+            v.innerHTML = `<div class="card"><h3>יומן</h3>
+                <button class="btn" style="background:#4285F4; margin-bottom:10px;">🗓️ סנכרן עם Google Calendar</button>
+                <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:5px;">
+                    ${Array.from({length:31}, (_,i)=>`<div class="day ${db.calendar[i+1]?'has-note':''}" onclick="selD(this, ${i+1})">${i+1}</div>`).join('')}
                 </div>
-                <div id="day-box" style="display:none; margin-top:20px;">
-                    <textarea id="day-note" style="width:100%; height:80px; border-radius:10px; padding:10px; border:1px solid #eee;"></textarea>
-                    <button class="btn-action" onclick="saveDay()">שמור יום</button>
+                <div id="day-box" style="display:none; margin-top:15px;">
+                    <textarea id="note" style="width:100%; height:60px; border-radius:10px; padding:10px;" placeholder="הערות..."></textarea>
+                    <button class="btn" onclick="saveD()">שמור יום</button>
                 </div></div>`;
         }
         else if (tab === 'more') {
-            v.innerHTML = `
-                <div class="card"><h3>מידע מקצועי</h3>🔗 <a href="https://panspandasil.org/" target="_blank">עמותת פאנס פנדס ישראל</a></div>
-                <div class="card"><h3>אנשי קשר</h3>
-                ${db.contacts.map((c,i)=>`<div class="list-item"><div><strong>${c.name}</strong><br>${c.phone} | ${c.email}</div><span onclick="del('contacts',${i})">🗑️</span></div>`).join('')}
-                <button class="btn-action" onclick="addCon()">+ הוסף איש קשר</button></div>`;
+            v.innerHTML = `<div class="card"><h3>אנשי קשר</h3>
+                ${db.contacts.map((c,i)=>`<div style="padding:10px; border-bottom:1px solid #eee;">${c.name}: ${c.phone}<br><small>${c.email}</small></div>`).join('')}
+                <button class="btn" onclick="addC()">הוסף איש קשר</button>
+                <hr>
+                <p>🔗 <a href="https://panspandasil.org/" target="_blank">עמותת פאנס פנדס ישראל</a></p>
+                </div>`;
         }
     }
 
-    function checkNotify() { if(Notification.permission !== "granted") Notification.requestPermission(); else alert("התראות כבר פעילות!"); }
     function setRate(el) { el.parentElement.querySelectorAll('.dot').forEach(d=>d.classList.remove('active')); el.classList.add('active'); }
-    function addSymp(k) { const n = prompt("שם:"); if(n){db.symptoms[k].push(n); save(); show('track');} }
-    function delSymp(k, i) { if(confirm("למחוק?")){db.symptoms[k].splice(i,1); save(); show('track');} }
-    function addMed() { const n = prompt("שם:"); const d = prompt("מינון:"); const t = prompt("שעה (HH:MM):"); if(n){db.meds.push({name:n, dose:d, time:t}); save(); show('meds');} }
-    function editMed(i) { const m = db.meds[i]; const n = prompt("שם:", m.name); if(n){db.meds[i].name = n; save(); show('meds');} }
-    function addCon() { const n = prompt("שם:"); const p = prompt("טלפון:"); const e = prompt("מייל:"); if(n){db.contacts.push({name:n, phone:p, email:e}); save(); show('more');} }
-    function selectDay(d) { activeDay = d; document.getElementById('day-box').style.display='block'; document.getElementById('day-note').value = db.calendarNotes[d] || ''; }
-    function saveDay() { db.calendarNotes[activeDay] = document.getElementById('day-note').value; save(); show('calendar'); }
-    function del(t, i) { if(confirm("למחוק?")){db[t].splice(i,1); save(); show(t==='meds'?'meds':'more');} }
+    function addS(k) { const n = prompt("שם:"); if(n){db.symptoms[k].push(n); save(); show('track');} }
+    function delS(k, i) { if(confirm("למחוק?")){db.symptoms[k].splice(i,1); save(); show('track');} }
+    function addM() { const n = prompt("שם:"); const d = prompt("מינון:"); const t = prompt("שעה (HH:MM):"); if(n){db.meds.push({name:n, dose:d, time:t}); save(); show('meds');} }
+    function editM(i) { const n = prompt("שם חדש:", db.meds[i].name); if(n){db.meds[i].name = n; save(); show('meds');} }
+    function addC() { const n = prompt("שם:"); const p = prompt("טלפון:"); const e = prompt("מייל:"); if(n){db.contacts.push({name:n, phone:p, email:e}); save(); show('more');} }
+    function selD(el, d) { activeD = d; document.querySelectorAll('.day').forEach(d=>d.classList.remove('selected')); el.classList.add('selected'); document.getElementById('day-box').style.display='block'; document.getElementById('note').value = db.calendar[d] || ''; }
+    function saveD() { db.calendar[activeD] = document.getElementById('note').value; save(); show('calendar'); }
+    function del(t, i) { db[t].splice(i,1); save(); show(t); }
+    function askN() { Notification.requestPermission(); }
+
+    // מנגנון בדיקת תרופות בכל דקה לצפצוף
+    setInterval(() => {
+        const now = new Date().toLocaleTimeString('he-IL', {hour12:false, hour:'2-digit', minute:'2-digit'});
+        db.meds.forEach(m => { if(m.time === now) { new Notification("זמן לתרופה!", {body: `${m.name} - ${m.dose}`}); } });
+    }, 60000);
 
     window.onload = () => show('track');
 </script>
