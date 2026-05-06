@@ -7,7 +7,7 @@
     <style>
         :root { --primary: #4caf50; --bg: #f1f8e9; --white: #ffffff; }
         body { font-family: system-ui, sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; }
-        header { background: var(--primary); color: white; padding: 15px; text-align: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        header { background: var(--primary); color: white; padding: 15px; text-align: center; }
         .container { padding: 15px; max-width: 600px; margin: auto; }
         .card { background: var(--white); border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .item-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
@@ -19,7 +19,10 @@
         .nav-btn.active { color: var(--primary); font-weight: bold; }
         .btn-action { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; margin-top: 10px; font-weight: bold; cursor: pointer; }
         .list-item { background: #f9f9f9; padding: 10px; border-radius: 10px; margin-bottom: 8px; border-right: 4px solid var(--primary); position: relative; }
-        .del-btn { color: red; cursor: pointer; font-size: 12px; margin-top: 5px; display: block; }
+        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; }
+        .cal-day { padding: 10px 0; text-align: center; background: #fff; border-radius: 5px; cursor: pointer; border: 1px solid #eee; }
+        .cal-day.today { border: 2px solid var(--primary); font-weight: bold; }
     </style>
 </head>
 <body>
@@ -38,13 +41,13 @@
     const symptoms = {
         physical: ["נזלת", "חום", "כאב רגליים", "כאבי בטן", "כאבי ראש", "כאב גרון", "שיעול", "הליכה רוקעת", "עייפות", "הרחבת אישונים", "אחיזת עפרון רפה", "הרטבת לילה", "יקיצות מרובות", "קושי להירדם"],
         behavior: ["בכי", "התפרצויות זעם", "מתחצפת ומקללת", "מופנמת", "תסכול וכעס", "שצף דיבור", "חוסר ריכוז", "ערפול מוחי", "צחוק היסטרי"],
-        compulsive: ["הרמת גבות", "משיכת אף", "כחכוח גרון", "גירוד והרחה", "הקפצת גוף", "משיכת כתפיים", "סידור שיער", "סידור שמיכה", "סידור נעליים", "עניין עם בגדים"]
+        compulsive: ["הרמת גבות", "משיכת אף", "כחכוח גרון", "גירוד והרחה", "הקפצת גוף", "משיכת כתפיים", "סידור שיער", "סידור שמיכה", "סידור כרית", "סידור סדין", "סידור נעליים", "עניין עם בגדים"]
     };
 
-    // טעינת נתונים שמורים
-    let db = JSON.parse(localStorage.getItem('pp_db_final')) || { meds: [], contacts: [], logs: {} };
+    let db = JSON.parse(localStorage.getItem('pp_final_v1')) || { meds: [], contacts: [], sites: [], logs: {} };
+    let currDate = new Date();
 
-    function save() { localStorage.setItem('pp_db_final', JSON.stringify(db)); }
+    function save() { localStorage.setItem('pp_final_v1', JSON.stringify(db)); }
 
     function show(tab) {
         const v = document.getElementById('view');
@@ -55,64 +58,53 @@
             v.innerHTML = Object.entries(symptoms).map(([k, list]) => `
                 <div class="card">
                     <h3>${k === 'physical' ? 'פיזי' : k === 'behavior' ? 'התנהגותי' : 'קומפולסיבי'}</h3>
-                    ${list.map(s => `<div class="item-row"><span>${s}</span><div class="rating">${[1,2,3,4,5].map(i => `<div class="dot" onclick="this.parentElement.querySelectorAll('.dot').forEach(d=>d.classList.remove('active'));this.classList.add('active')">${i}</div>`).join('')}</div></div>`).join('')}
-                </div>
-            `).join('') + '<button class="btn-action" onclick="alert(\'נשמר!\')">שמור נתוני היום</button>';
+                    ${list.map(s => `<div class="item-row"><span>${s}</span><div class="rating">${[1,2,3,4,5].map(i => `<div class="dot">${i}</div>`).join('')}</div></div>`).join('')}
+                </div>`).join('') + '<button class="btn-action">שמור נתוני היום</button>';
         } 
         
         else if (tab === 'meds') {
-            v.innerHTML = `
-                <div class="card">
-                    <h3>מעקב תרופות ותוספים</h3>
-                    <div id="mlist">${db.meds.map((m, i) => `
-                        <div class="list-item">
-                            <strong>${m.name}</strong> (${m.dose})<br><small>שעות: ${m.times}</small>
-                            <span class="del-btn" onclick="deleteItem('meds', ${i})">🗑️ מחק</span>
-                        </div>`).join('')}
-                    </div>
-                    <button class="btn-action" onclick="addItem('meds')">+ הוסף תרופה/תוסף</button>
-                </div>`;
-        } 
-        
+            v.innerHTML = `<div class="card"><h3>תרופות ותזכורות</h3><div id="mlist">${db.meds.map((m, i) => `<div class="list-item"><strong>${m.name}</strong> - ${m.times}</div>`).join('')}</div><button class="btn-action" onclick="addMed()">+ הוסף תרופה</button></div>`;
+        }
+
+        else if (tab === 'calendar') {
+            renderCalendar(v);
+        }
+
         else if (tab === 'more') {
             v.innerHTML = `
-                <div class="card">
-                    <h3>אנשי קשר ורופאים</h3>
-                    <div id="clist">${db.contacts.map((c, i) => `<div class="list-item"><strong>${c.name}</strong>: ${c.phone}<span class="del-btn" onclick="deleteItem('contacts', ${i})">🗑️ מחק</span></div>`).join('')}</div>
-                    <button class="btn-action" onclick="addItem('contacts')">+ הוסף איש קשר</button>
+                <div class="card"><h3>אנשי קשר</h3><div id="clist">${db.contacts.map((c, i) => `<div class="list-item">${c.name}: ${c.phone}</div>`).join('')}</div><button class="btn-action" onclick="addContact()">+ הוסף איש קשר</button></div>
+                <div class="card"><h3>אתרים וקישורים</h3><div id="slist">${db.sites.map((s, i) => `<div class="list-item"><a href="${s.url}" target="_blank">${s.name}</a></div>`).join('')}</div><button class="btn-action" onclick="addSite()">+ הוסף אתר</button></div>`;
+        }
+    }
+
+    function renderCalendar(v) {
+        const month = currDate.toLocaleString('he-IL', { month: 'long', year: 'numeric' });
+        v.innerHTML = `
+            <div class="card">
+                <div class="cal-header">
+                    <button onclick="currDate.setMonth(currDate.getMonth()-1); show('calendar')"> < </button>
+                    <strong>${month}</strong>
+                    <button onclick="currDate.setMonth(currDate.getMonth()+1); show('calendar')"> > </button>
                 </div>
-                <div class="card">
-                    <h3>קישורים חשובים</h3>
-                    <p><a href="https://il.iherb.com" target="_blank">iHerb</a> (קוד הנחה: PANS10)</p>
-                    <p><a href="https://supphero.co.il" target="_blank">Supphero</a></p>
-                </div>`;
-        }
-        
-        else if (tab === 'calendar') {
-            v.innerHTML = `<div class="card"><h3>יומן מלא</h3><div style="display:grid; grid-template-columns:repeat(7,1fr); gap:5px;">${Array.from({length:31}, (_,i)=>`<div style="padding:10px; border:1px solid #eee; text-align:center;">${i+1}</div>`).join('')}</div><p style="text-align:center; margin-top:20px;">📅 ניתן לעבור בין חודשים ולסנכרן עם גוגל (בקרוב)</p></div>`;
-        }
+                <div class="cal-grid">${Array.from({length:30}, (_,i) => `<div class="cal-day" onclick="dayClick(${i+1})">${i+1}</div>`).join('')}</div>
+            </div>
+            <div id="day-detail" class="card" style="display:none"></div>`;
     }
 
-    function addItem(type) {
-        if (type === 'meds') {
-            const name = prompt("שם התרופה:");
-            const dose = prompt("מינון:");
-            const times = prompt("מתי (בוקר/צהריים/ערב):");
-            if(name) { db.meds.push({name, dose, times}); save(); show('meds'); }
-        } else {
-            const name = prompt("שם הרופא/איש קשר:");
-            const phone = prompt("טלפון:");
-            if(name) { db.contacts.push({name, phone}); save(); show('more'); }
-        }
+    function dayClick(day) {
+        const detail = document.getElementById('day-detail');
+        detail.style.display = 'block';
+        detail.innerHTML = `<h3>תאריך: ${day}/${currDate.getMonth()+1}</h3>
+            <p><strong>הערות ליום זה:</strong></p>
+            <textarea style="width:100%; height:60px;"></textarea>
+            <p><strong>העלאת מסמכים/תמונות:</strong></p>
+            <input type="file" multiple>
+            <button class="btn-action">שמור ליום זה</button>`;
     }
 
-    function deleteItem(type, index) {
-        if(confirm("למחוק?")) {
-            db[type].splice(index, 1);
-            save();
-            show(type === 'meds' ? 'meds' : 'more');
-        }
-    }
+    function addMed() { const name = prompt("שם:"); const times = prompt("שעות:"); if(name){db.meds.push({name, times}); save(); show('meds');}}
+    function addContact() { const name = prompt("שם:"); const phone = prompt("טלפון:"); if(name){db.contacts.push({name, phone}); save(); show('more');}}
+    function addSite() { const name = prompt("שם האתר:"); const url = prompt("כתובת (URL):"); if(name){db.sites.push({name, url}); save(); show('more');}}
 
     window.onload = () => show('track');
 </script>
