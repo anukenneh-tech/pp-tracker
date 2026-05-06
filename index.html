@@ -4,20 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>P/P TRACKER 🌿</title>
-    <!-- הגדרות להפיכה לאפליקציה במסך הבית -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <style>
         :root { --primary: #4caf50; --bg: #f8faf7; --white: #ffffff; --text: #2d3436; }
         body { font-family: -apple-system, system-ui, sans-serif; margin: 0; background: var(--bg); color: var(--text); padding-bottom: 90px; }
-        header { background: var(--primary); color: white; padding: 18px; text-align: center; font-weight: bold; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        
+        /* הראש המעודכן עם השם שלך */
+        header { 
+            background: var(--primary); 
+            color: white; 
+            padding: 15px; 
+            text-align: center; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05); 
+        }
+        header h1 { margin: 0; font-size: 1.4rem; }
+        header p { margin: 5px 0 0 0; font-size: 0.9rem; opacity: 0.9; font-weight: normal; }
+
         .container { padding: 16px; max-width: 500px; margin: auto; }
         .card { background: var(--white); border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.04); border: 1px solid #edf0ed; }
         h3 { margin: 0 0 15px 0; color: var(--primary); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f3f1; padding-bottom: 8px; }
         .item-row { padding: 12px 0; border-bottom: 1px solid #f1f3f1; }
         .rating { display: flex; justify-content: space-between; gap: 8px; margin-top: 10px; }
         .dot { flex: 1; height: 42px; border: 1.5px solid #eee; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #fff; cursor: pointer; font-weight: 600; color: #b0b0b0; }
-        .dot.active { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.05); }
+        .dot.active { background: var(--primary); color: white; border-color: var(--primary); }
         .nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 1000; }
         .nav-btn { border: none; background: none; font-size: 11px; color: #b0b0b0; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
         .nav-btn.active { color: var(--primary); font-weight: bold; }
@@ -27,7 +39,11 @@
 </head>
 <body>
 
-<header>P/P TRACKER 🌿</header>
+<header>
+    <h1>P/P TRACKER 🌿</h1>
+    <p>mayo</p>
+</header>
+
 <div class="container" id="view"></div>
 
 <nav class="nav">
@@ -38,7 +54,7 @@
 </nav>
 
 <script>
-    let db = JSON.parse(localStorage.getItem('pp_tracker_v7')) || {
+    let db = JSON.parse(localStorage.getItem('pp_tracker_v8')) || {
         symptoms: {
             physical: ["נזלת", "חום", "כאב רגליים", "כאבי בטן", "כאבי ראש", "כאב גרון", "שיעול", "הליכה רוקעת", "עייפות", "הרחבת אישונים", "אחיזת עפרון רפה", "הרטבת לילה", "יקיצות מרובות", "קושי להירדם"],
             behavior: ["בכי", "התפרצויות זעם", "מתחצפת ומקללת", "מופנמת", "תסכול וכעס", "חוסר ריכוז", "ערפול מוחי"],
@@ -47,7 +63,7 @@
         meds: [], contacts: [], calendar: {}
     };
 
-    function save() { localStorage.setItem('pp_tracker_v7', JSON.stringify(db)); }
+    function save() { localStorage.setItem('pp_tracker_v8', JSON.stringify(db)); }
 
     function show(tab) {
         const v = document.getElementById('view');
@@ -75,42 +91,36 @@
             v.innerHTML = `
                 <div class="card"><h3>אנשי קשר</h3>
                 ${db.contacts.map((c,i)=>`<div class="list-item"><div><strong>${c.name}</strong><br>${c.phone} | ${c.email}</div><span onclick="del('contacts',${i})">🗑️</span></div>`).join('')}
-                <button class="btn-main" onclick="addCon()">+ איש קשר</button></div>
-                <div class="card"><h3>מידע מקצועי</h3>🔗 <a href="https://panspandasil.org/" target="_blank">עמותת פאנס פנדס ישראל</a></div>
-                <div class="card"><h3>מסמכים</h3><button class="btn-main" style="background:#607d8b">📤 העלאת מסמך</button></div>`;
+                <button class="btn-main" onclick="addCon()">+ הוסף איש קשר</button></div>
+                
+                <div class="card"><h3>מידע מקצועי</h3>
+                <div class="list-item">🔗 <a href="https://panspandasil.org/" target="_blank" style="text-decoration:none; color:var(--primary); font-weight:bold;">עמותת פאנס פנדס ישראל</a></div>
+                </div>
+
+                <div class="card"><h3>מסמכים וסיכומים</h3>
+                <button class="btn-main" style="background:#607d8b">📤 העלאת מסמך חדש</button>
+                </div>`;
         }
         else if (tab === 'calendar') {
             v.innerHTML = `<div class="card"><h3>יומן</h3><div style="display:grid; grid-template-columns:repeat(7,1fr); gap:8px;">
-                ${Array.from({length:31}, (_,i)=>`<div class="day" onclick="alert('הערה')">${i+1}</div>`).join('')}</div></div>`;
+                ${Array.from({length:31}, (_,i)=>`<div class="day" onclick="alert('יומן בפיתוח')">${i+1}</div>`).join('')}</div></div>`;
         }
     }
 
-    function activateAlarms() {
-        if(Notification.permission !== "granted") {
-            Notification.requestPermission().then(p => { if(p === 'granted') alert("התראות אושרו!"); });
-        }
-        const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
-        audio.play().then(() => alert("הצליל הופעל! עכשיו הטלפון יתריע."));
-    }
-
-    setInterval(() => {
-        const now = new Date().toLocaleTimeString('he-IL', {hour12:false, hour:'2-digit', minute:'2-digit'});
-        db.meds.forEach(m => {
-            if(m.time === now) {
-                new Notification("P/P Tracker: זמן לתרופה!", { body: `${m.name} - ${m.dose}` });
-                const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
-                audio.play();
-            }
-        });
-    }, 60000);
-
+    // פונקציות עזר
     function setRate(el) { el.parentElement.querySelectorAll('.dot').forEach(d=>d.classList.remove('active')); el.classList.add('active'); }
-    function addSymp(k) { const n = prompt("שם:"); if(n){db.symptoms[k].push(n); save(); show('track');} }
+    function addSymp(k) { const n = prompt("שם התסמין:"); if(n){db.symptoms[k].push(n); save(); show('track');} }
     function delSymp(k, i) { if(confirm("למחוק?")){db.symptoms[k].splice(i,1); save(); show('track');} }
     function addMed() { const n = prompt("שם:"); const d = prompt("מינון:"); const t = prompt("שעה (HH:MM):"); if(n){db.meds.push({name:n, dose:d, time:t}); save(); show('meds');} }
     function editMed(i) { const m = db.meds[i]; const n = prompt("שם:", m.name); if(n){db.meds[i].name = n; save(); show('meds');} }
     function addCon() { const n = prompt("שם:"); const p = prompt("טלפון:"); const e = prompt("מייל:"); if(n){db.contacts.push({name:n, phone:p, email:e}); save(); show('more');} }
     function del(t, i) { if(confirm("למחוק?")){db[t].splice(i,1); save(); show(t==='meds'?'meds':'more');} }
+    
+    function activateAlarms() {
+        if(Notification.permission !== "granted") Notification.requestPermission();
+        const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+        audio.play().then(() => alert("הצליל הופעל! ודאי שהטלפון לא על שקט."));
+    }
 
     window.onload = () => show('track');
 </script>
