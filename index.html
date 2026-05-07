@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>P/P TRACKER — כניסה</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Heebo',sans-serif;background:#f4f4f1;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;direction:rtl}
+.card{background:#fff;border-radius:16px;padding:32px 24px;width:100%;max-width:340px;box-shadow:0 2px 20px rgba(0,0,0,0.08)}
+.logo{font-size:48px;text-align:center;margin-bottom:12px}
+h1{font-size:22px;font-weight:700;text-align:center;color:#1a1a17;margin-bottom:4px}
+.sub{font-size:13px;color:#67675f;text-align:center;margin-bottom:24px}
+input{width:100%;padding:12px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:10px;font-size:15px;font-family:'Heebo',sans-serif;margin-bottom:10px;direction:rtl;outline:none;background:#fafafa;color:#1a1a17}
+input:focus{border-color:#1D9E75}
+.btn-g{width:100%;padding:13px;background:#1D9E75;color:#fff;border:none;border-radius:10px;font-size:16px;font-weight:600;font-family:'Heebo',sans-serif;cursor:pointer;margin-bottom:8px}
+.btn-w{width:100%;padding:13px;background:#f0f0ec;color:#1a1a17;border:1px solid rgba(0,0,0,0.1);border-radius:10px;font-size:15px;font-family:'Heebo',sans-serif;cursor:pointer;margin-bottom:8px}
+#msg{text-align:center;font-size:13px;min-height:22px;margin-top:6px;color:#1D9E75;padding:4px}
+#msg.err{color:#E24B4A}
+.note{margin-top:16px;padding-top:14px;border-top:1px solid #eee;font-size:11px;color:#9a9a93;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="logo">🌿</div>
+  <h1>P/P TRACKER</h1>
+  <p class="sub">כניסה לשמירת הנתונים שלך בענן</p>
+  <input type="email" id="em" placeholder="כתובת מייל" autocomplete="email" />
+  <input type="password" id="pw" placeholder="סיסמה (לפחות 6 תווים)" autocomplete="current-password" />
+  <button class="btn-g" onclick="doLogin()">כניסה</button>
+  <button class="btn-w" onclick="doReg()">הרשמה — משתמש חדש</button>
+  <div id="msg"></div>
+  <div class="note">הנתונים נשמרים בענן מאובטח. בעלת האפליקציה אינה עושה שימוש בנתונים האישיים שלך.</div>
+</div>
+
+<script>
+let sb = null;
+
+window.addEventListener('load', async () => {
+  // Wait for supabase to load
+  await new Promise(r => setTimeout(r, 300));
+  
+  if (!window.supabase) {
+    document.getElementById('msg').textContent = 'שגיאה בטעינה — נסי לרענן';
+    document.getElementById('msg').className = 'err';
+    return;
+  }
+  
+  sb = window.supabase.createClient(
+    'https://sumwfmcmelebcrgwlctq.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN1bXdmbWNtZWxlYmNyZ3dsY3RxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgwNzkwMDcsImV4cCI6MjA5MzY1NTAwN30._FSPcoJyGVWM-AENcYvgEVR47NtTiRC26KCSvO6b6tU'
+  );
+  
+  // Auto-redirect if already logged in
+  const {data: {session}} = await sb.auth.getSession();
+  if (session) { window.location.href = 'app.html'; return; }
+});
+
+function setMsg(t, err) {
+  const el = document.getElementById('msg');
+  el.textContent = t;
+  el.className = err ? 'err' : '';
+}
+
+async function doLogin() {
+  if (!sb) { setMsg('נסי לרענן את הדף', true); return; }
+  const e = document.getElementById('em').value.trim();
+  const p = document.getElementById('pw').value;
+  if (!e || !p) { setMsg('נא למלא מייל וסיסמה', true); return; }
+  setMsg('מתחברת...');
+  const {data, error} = await sb.auth.signInWithPassword({email: e, password: p});
+  if (error) {
+    setMsg(error.message.includes('Invalid') ? 'מייל או סיסמה שגויים' : error.message, true);
+    return;
+  }
+  setMsg('✓ מחברת...');
+  window.location.href = 'app.html';
+}
+
+async function doReg() {
+  if (!sb) { setMsg('נסי לרענן את הדף', true); return; }
+  const e = document.getElementById('em').value.trim();
+  const p = document.getElementById('pw').value;
+  if (!e || p.length < 6) { setMsg('מייל תקין וסיסמה לפחות 6 תווים', true); return; }
+  setMsg('נרשמת...');
+  const {error} = await sb.auth.signUp({email: e, password: p});
+  if (error) { setMsg(error.message, true); return; }
+  setMsg('✓ נרשמת! עכשיו התחברי.');
+}
+</script>
+</body>
+</html>
